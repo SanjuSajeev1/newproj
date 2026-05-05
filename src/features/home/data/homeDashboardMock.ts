@@ -46,6 +46,35 @@ export const HOME_FEATURED_PROVIDERS: FeaturedProvider[] = [
   },
 ];
 
+export type HomeHeroSlide = {
+  id: string;
+  title: string;
+  imageUrl: string;
+};
+
+export const HOME_HERO_SLIDES: HomeHeroSlide[] = [
+  {
+    id: 'h1',
+    title: 'DJ Event Nights',
+    imageUrl: 'https://images.unsplash.com/photo-1571266028243-e4733b0f0bb0?w=1400&q=80',
+  },
+  {
+    id: 'h2',
+    title: 'Premium Catering Setup',
+    imageUrl: 'https://images.unsplash.com/photo-1555244162-803834f70033?w=1400&q=80',
+  },
+  {
+    id: 'h3',
+    title: 'Photography Sessions',
+    imageUrl: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=1400&q=80',
+  },
+  {
+    id: 'h4',
+    title: 'Live Artist Performance',
+    imageUrl: 'https://images.unsplash.com/photo-1461784121038-f088ca1e7714?w=1400&q=80',
+  },
+];
+
 export type UpcomingBooking = {
   providerName: string;
   dateLabel: string;

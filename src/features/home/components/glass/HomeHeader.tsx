@@ -1,14 +1,17 @@
-import { Ionicons } from '@expo/vector-icons';
-import { BlurView } from 'expo-blur';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated from 'react-native-reanimated';
-import { gs, glass } from '../../constants/glassTheme';
+import { gs } from '../../constants/glassTheme';
+import type { HomeHeroSlide } from '../../data/homeDashboardMock';
+import { HeaderBackgroundCarousel } from './HeaderBackgroundCarousel';
 import { LocationSelector } from './LocationSelector';
 import { SearchBar } from './SearchBar';
+import { Ionicons } from '@expo/vector-icons';
 
 type Props = {
   topInset: number;
   searchTop: number;
+  headerHeight: number;
+  heroSlides: HomeHeroSlide[];
   firstName: string;
   location: string;
   onLocationPress: () => void;
@@ -23,6 +26,8 @@ type Props = {
 export function HomeHeader({
   topInset,
   searchTop,
+  headerHeight,
+  heroSlides,
   firstName,
   location,
   onLocationPress,
@@ -35,7 +40,7 @@ export function HomeHeader({
 }: Props) {
   return (
     <Animated.View style={[styles.header, containerStyle]}>
-      <BlurView intensity={44} tint="dark" style={StyleSheet.absoluteFillObject} />
+      <HeaderBackgroundCarousel data={heroSlides} height={headerHeight + topInset} />
       <Animated.View style={[styles.headerTint, bgOpacityStyle]} />
       <View style={[styles.inner, { paddingTop: topInset + gs.sm }]}>
         <Animated.View style={[styles.topRow, topRowStyle]}>
@@ -66,11 +71,7 @@ export function HomeHeader({
 function BlurIconButton() {
   return (
     <View style={styles.notifInner}>
-      <BlurView intensity={44} tint="light" style={StyleSheet.absoluteFillObject} />
-      <View style={styles.notifTint} />
-      <View style={styles.notifIcon}>
-        <Ionicons name="notifications-outline" size={22} color={glass.textPrimary} />
-      </View>
+      <Ionicons name="notifications-outline" size={22} color="#FFFFFF" />
     </View>
   );
 }
@@ -86,7 +87,7 @@ const styles = StyleSheet.create({
   },
   headerTint: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(3,7,18,0.72)',
+    backgroundColor: 'rgba(0,0,0,0.18)',
   },
   inner: {
     flex: 1,
@@ -104,14 +105,14 @@ const styles = StyleSheet.create({
   greeting: {
     fontSize: 28,
     fontWeight: '800',
-    color: glass.textPrimary,
+    color: '#FFFFFF',
     letterSpacing: -0.5,
     marginBottom: gs.xxs,
   },
   subtitle: {
     fontSize: 16,
     fontWeight: '500',
-    color: glass.textSecondary,
+    color: 'rgba(255,255,255,0.9)',
     lineHeight: 22,
   },
   searchFloating: {
@@ -126,22 +127,15 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    overflow: 'hidden',
     borderWidth: 1,
-    borderColor: glass.border,
+    borderColor: 'rgba(255,255,255,0.45)',
+    backgroundColor: 'rgba(0,0,0,0.28)',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: glass.shadow,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.2,
     shadowRadius: 12,
-    elevation: 6,
-  },
-  notifTint: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(255,255,255,0.1)',
-  },
-  notifIcon: {
-    zIndex: 1,
+    elevation: 3,
   },
 });

@@ -1,8 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
-import { BlurView } from 'expo-blur';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated from 'react-native-reanimated';
-import { glass, gs } from '../../constants/glassTheme';
+import { gs } from '../../constants/glassTheme';
 import { useGlassPressScale } from './useGlassPressScale';
 
 type Props = {
@@ -30,12 +29,10 @@ export function FeaturedCard({ name, rating, imageUrl, onPress }: Props) {
           <Image source={{ uri: imageUrl }} style={styles.image} resizeMode="cover" />
         </View>
         <View style={styles.footer}>
-          <BlurView intensity={48} tint="light" style={StyleSheet.absoluteFill} />
-          <View style={styles.footerTint} />
-          <Text style={[styles.name, styles.footerText]} numberOfLines={1}>
+          <Text style={styles.name} numberOfLines={1}>
             {name}
           </Text>
-          <View style={[styles.ratingRow, styles.footerText]}>
+          <View style={styles.ratingRow}>
             <Ionicons name="star" size={14} color="#FBBF24" />
             <Text style={styles.rating}>{rating.toFixed(1)}</Text>
           </View>
@@ -52,15 +49,16 @@ const styles = StyleSheet.create({
   },
   card: {
     width: CARD_W,
-    borderRadius: glass.radius,
-    overflow: 'hidden',
+    borderRadius: 16,
     borderWidth: 1,
-    borderColor: glass.border,
-    shadowColor: glass.shadow,
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.38,
-    shadowRadius: 16,
-    elevation: 9,
+    borderColor: '#E2E8F0',
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 3,
+    overflow: 'hidden',
   },
   clip: {
     height: IMG_H,
@@ -71,24 +69,16 @@ const styles = StyleSheet.create({
     height: IMG_H,
   },
   footer: {
-    position: 'relative',
     paddingHorizontal: gs.md,
     paddingVertical: gs.sm + 2,
     minHeight: 64,
     justifyContent: 'center',
-    overflow: 'hidden',
-  },
-  footerTint: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(255,255,255,0.12)',
-  },
-  footerText: {
-    zIndex: 1,
+    backgroundColor: '#FFFFFF',
   },
   name: {
     fontSize: 15,
     fontWeight: '700',
-    color: glass.textPrimary,
+    color: '#0F172A',
     marginBottom: 4,
   },
   ratingRow: {
@@ -99,6 +89,6 @@ const styles = StyleSheet.create({
   rating: {
     fontSize: 13,
     fontWeight: '600',
-    color: glass.textSecondary,
+    color: '#64748B',
   },
 });

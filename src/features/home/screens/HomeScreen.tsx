@@ -2,7 +2,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useMemo, useState } from 'react';
-import { ImageBackground, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, {
   Extrapolation,
@@ -14,8 +14,8 @@ import Animated, {
 import { useAuthStore } from '../../../store/authStore';
 import { HomeStackParamList } from '../../../shell/navigation/types';
 import { CategoryCard, FeaturedCard, GlassCard, HomeHeader, LocationBottomSheet } from '../components/glass';
-import { gs, glass } from '../constants/glassTheme';
-import { HOME_BACKGROUND_URI, HOME_CATEGORIES, HOME_FEATURED_PROVIDERS, HOME_UPCOMING_BOOKING } from '../data/homeDashboardMock';
+import { gs } from '../constants/glassTheme';
+import { HOME_CATEGORIES, HOME_FEATURED_PROVIDERS, HOME_HERO_SLIDES, HOME_UPCOMING_BOOKING } from '../data/homeDashboardMock';
 
 type Nav = NativeStackNavigationProp<HomeStackParamList, 'HomeMain'>;
 
@@ -108,18 +108,19 @@ export function HomeScreen() {
   });
 
   const headerGlassStyle = useAnimatedStyle(() => {
-    const opacity = interpolate(scrollY.value, [0, HEADER_RANGE], [0.04, 0.28], Extrapolation.CLAMP);
+    const opacity = interpolate(scrollY.value, [0, HEADER_RANGE], [0.7, 1], Extrapolation.CLAMP);
     return { opacity };
   });
 
   return (
-    <ImageBackground source={{ uri: HOME_BACKGROUND_URI }} style={styles.bg} resizeMode="cover">
-      <StatusBar style="light" translucent />
-      <View pointerEvents="none" style={styles.backdrop} />
+    <View style={styles.bg}>
+      <StatusBar style="light" />
 
       <HomeHeader
         topInset={insets.top}
         searchTop={SEARCH_TOP_EXPANDED}
+        headerHeight={HEADER_EXPANDED}
+        heroSlides={HOME_HERO_SLIDES}
         firstName={firstName}
         location={location}
         onLocationPress={() => setShowLocationSheet(true)}
@@ -224,17 +225,14 @@ export function HomeScreen() {
           setShowLocationSheet(false);
         }}
       />
-    </ImageBackground>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   bg: {
     flex: 1,
-  },
-  backdrop: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: glass.overlay,
+    backgroundColor: '#F8FAFC',
   },
   scrollContent: {
     paddingHorizontal: gs.md,
@@ -243,7 +241,7 @@ const styles = StyleSheet.create({
   sectionLabel: {
     fontSize: 13,
     fontWeight: '700',
-    color: 'rgba(255,255,255,0.72)',
+    color: '#64748B',
     letterSpacing: 1,
     textTransform: 'uppercase',
     marginBottom: gs.sm,
@@ -279,24 +277,24 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 17,
     fontWeight: '700',
-    color: glass.textPrimary,
+    color: '#0F172A',
   },
   statusPill: {
     paddingHorizontal: gs.sm,
     paddingVertical: 4,
     borderRadius: 20,
-    backgroundColor: 'rgba(34,197,94,0.35)',
+    backgroundColor: '#DCFCE7',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.35)',
+    borderColor: '#86EFAC',
   },
   statusText: {
     fontSize: 12,
     fontWeight: '700',
-    color: glass.textPrimary,
+    color: '#166534',
   },
   upcomingDate: {
     fontSize: 14,
     fontWeight: '500',
-    color: glass.textSecondary,
+    color: '#64748B',
   },
 });

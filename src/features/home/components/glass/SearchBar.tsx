@@ -1,19 +1,12 @@
 import { Ionicons } from '@expo/vector-icons';
-import { BlurView } from 'expo-blur';
 import { useCallback, useState } from 'react';
-import {
-  Platform,
-  Pressable,
-  StyleSheet,
-  TextInput,
-  View,
-} from 'react-native';
+import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
 } from 'react-native-reanimated';
-import { glass, gs } from '../../constants/glassTheme';
+import { gs } from '../../constants/glassTheme';
 
 type Props = {
   placeholder?: string;
@@ -43,26 +36,19 @@ export function SearchBar({
 
   return (
     <Animated.View style={[styles.outer, shellStyle]}>
-      <BlurView
-        intensity={glass.blurSearch}
-        tint="light"
-        style={styles.blur}
-        experimentalBlurMethod={Platform.OS === 'android' ? 'dimezisBlurView' : undefined}
-      />
-      <View style={styles.tint} />
       <View style={styles.row}>
-        <Ionicons name="search" size={20} color={glass.textPrimary} style={styles.icon} />
+        <Ionicons name="search" size={20} color="#64748B" style={styles.icon} />
         <TextInput
           value={value}
           onChangeText={setValue}
           placeholder={placeholder}
-          placeholderTextColor="rgba(255,255,255,0.5)"
+          placeholderTextColor="#94A3B8"
           style={styles.input}
           returnKeyType="search"
           onSubmitEditing={() => onSubmit?.(value)}
           onFocus={onFocus}
           onBlur={onBlur}
-          selectionColor="rgba(255,255,255,0.9)"
+          selectionColor="#6366F1"
         />
         {value.length > 0 ? (
           <Pressable
@@ -70,7 +56,7 @@ export function SearchBar({
             hitSlop={10}
             accessibilityLabel="Clear search"
           >
-            <Ionicons name="close-circle" size={20} color={glass.textSecondary} />
+            <Ionicons name="close-circle" size={20} color="#94A3B8" />
           </Pressable>
         ) : null}
       </View>
@@ -80,30 +66,20 @@ export function SearchBar({
 
 const styles = StyleSheet.create({
   outer: {
-    borderRadius: glass.radiusPill,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: glass.border,
-    minHeight: 52,
-    shadowColor: glass.shadow,
-    shadowOffset: { width: 0, height: 14 },
-    shadowOpacity: 0.35,
-    shadowRadius: 22,
-    elevation: 12,
-  },
-  blur: {
-    ...StyleSheet.absoluteFillObject,
-  },
-  tint: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(255,255,255,0.12)',
+    borderRadius: 999,
+    backgroundColor: '#FFFFFF',
+    height: 48,
+    paddingHorizontal: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 3,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: gs.md,
-    paddingVertical: gs.sm,
-    minHeight: 52,
+    minHeight: 48,
   },
   icon: {
     marginRight: gs.sm,
@@ -113,7 +89,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     fontWeight: '500',
-    color: glass.textPrimary,
+    color: '#0F172A',
     paddingVertical: 4,
   },
 });

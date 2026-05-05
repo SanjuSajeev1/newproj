@@ -1,6 +1,8 @@
 export { CategoryCard } from './CategoryCard';
 export { FeaturedCard } from './FeaturedCard';
 export { GlassCard } from './GlassCard';
+export { HeroCarousel } from './HeroCarousel';
+export { HeaderBackgroundCarousel } from './HeaderBackgroundCarousel';
 export { HomeHeader } from './HomeHeader';
 export { LocationBottomSheet } from './LocationBottomSheet';
 export { LocationSelector } from './LocationSelector';

@@ -1,8 +1,7 @@
-import { BlurView } from 'expo-blur';
 import { ReactNode } from 'react';
-import { Platform, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
-import { glass, gs } from '../../constants/glassTheme';
+import { gs } from '../../constants/glassTheme';
 
 type Props = {
   children: ReactNode;
@@ -14,13 +13,6 @@ type Props = {
 export function GlassCard({ children, style, animatedStyle }: Props) {
   const body = (
     <View style={[styles.wrap, style]}>
-      <BlurView
-        intensity={glass.blur}
-        tint="light"
-        style={StyleSheet.absoluteFillObject}
-        experimentalBlurMethod={Platform.OS === 'android' ? 'dimezisBlurView' : undefined}
-      />
-      <View style={styles.tint} />
       <View style={styles.inner}>{children}</View>
     </View>
   );
@@ -35,20 +27,15 @@ export function GlassCard({ children, style, animatedStyle }: Props) {
 const styles = StyleSheet.create({
   wrap: {
     position: 'relative',
-    borderRadius: glass.radius,
+    borderRadius: 16,
     borderWidth: 1,
-    borderColor: glass.border,
-    overflow: 'hidden',
-    backgroundColor: glass.fill,
-    shadowColor: glass.shadow,
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.35,
-    shadowRadius: 20,
-    elevation: 8,
-  },
-  tint: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(255,255,255,0.06)',
+    borderColor: '#E2E8F0',
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 3,
   },
   inner: {
     padding: gs.md,
