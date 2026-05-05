@@ -1,207 +1,302 @@
-import { useCallback, useMemo, useState } from 'react';
-import { FlatList, ListRenderItem, Pressable, StyleSheet, Text, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { StatusBar } from 'expo-status-bar';
+import { useCallback, useMemo, useState } from 'react';
+import { ImageBackground, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { LoginPromptModal } from '../../../components/LoginPromptModal';
-import { Avatar } from '../../../components/ui';
-import { MOCK_POSTS, MOCK_STORIES, Post, Story } from '../../../constants/mockData';
-import { colors, spacing, typography } from '../../../constants/theme';
+import Animated, {
+  Extrapolation,
+  interpolate,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  useSharedValue,
+} from 'react-native-reanimated';
 import { useAuthStore } from '../../../store/authStore';
 import { HomeStackParamList } from '../../../shell/navigation/types';
-import { FeedPostCard } from '../components/FeedPostCard';
+import { CategoryCard, FeaturedCard, GlassCard, HomeHeader, LocationBottomSheet } from '../components/glass';
+import { gs, glass } from '../constants/glassTheme';
+import { HOME_BACKGROUND_URI, HOME_CATEGORIES, HOME_FEATURED_PROVIDERS, HOME_UPCOMING_BOOKING } from '../data/homeDashboardMock';
 
 type Nav = NativeStackNavigationProp<HomeStackParamList, 'HomeMain'>;
-
-type BlockReason = 'like' | 'comment' | 'save';
 
 export function HomeScreen() {
   const navigation = useNavigation<Nav>();
   const insets = useSafeAreaInsets();
-  const isGuest = useAuthStore((s) => s.isGuest);
+  const { width: winW } = useWindowDimensions();
   const user = useAuthStore((s) => s.user);
+  const [location, setLocation] = useState('Bangalore');
+  const [showLocationSheet, setShowLocationSheet] = useState(false);
+  const scrollY = useSharedValue(0);
 
-  const [loginModal, setLoginModal] = useState(false);
-  const [modalReason, setModalReason] = useState<BlockReason>('like');
+  const HEADER_EXPANDED = 244;
+  const HEADER_COLLAPSED = 86;
+  const HEADER_RANGE = HEADER_EXPANDED - HEADER_COLLAPSED;
+  const SEARCH_TOP_EXPANDED = insets.top + 146;
+  const SEARCH_TOP_COLLAPSED = insets.top + 18;
+  const SEARCH_DROP = SEARCH_TOP_EXPANDED - SEARCH_TOP_COLLAPSED;
+  const LOCATION_OPTIONS = ['Bangalore', 'Koramangala', 'Indiranagar', 'HSR Layout', 'Whitefield'];
 
-  const displayName = useMemo(() => {
-    if (isGuest) return 'there';
-    const first = user?.name?.trim().split(/\s+/)[0];
-    return first ?? 'there';
-  }, [isGuest, user?.name]);
+  const firstName = useMemo(() => {
+    const raw = user?.name?.trim().split(/\s+/)[0];
+    return raw && raw.length > 0 ? raw : 'Sanju';
+  }, [user?.name]);
 
-  const openStories = useCallback(
-    (index: number) => {
-      navigation.navigate('StoryViewer', { initialIndex: index });
+  const cell = useMemo(() => {
+    const horizontalPad = gs.md * 2;
+    const colGap = gs.sm;
+    return (winW - horizontalPad - colGap) / 2;
+  }, [winW]);
+
+  const tryOpenSearchTab = useCallback(() => {
+    const tab = navigation.getParent();
+    if (!tab) return;
+    const state = tab.getState();
+    if (state?.routeNames?.includes('SearchTab')) {
+      tab.navigate('SearchTab' as never);
+    }
+  }, [navigation]);
+
+  const onSearchSubmit = useCallback(
+    (_text: string) => {
+      tryOpenSearchTab();
     },
-    [navigation],
+    [tryOpenSearchTab],
   );
 
-  const onInteractionBlocked = useCallback((reason: BlockReason) => {
-    if (!isGuest) return;
-    setModalReason(reason);
-    setLoginModal(true);
-  }, [isGuest]);
+  const onScroll = useAnimatedScrollHandler((event) => {
+    scrollY.value = event.contentOffset.y;
+  });
 
-  const renderStory = useCallback(
-    ({ item, index }: { item: Story; index: number }) => (
-      <Pressable
-        onPress={() => openStories(index)}
-        style={styles.storyCell}
-        accessibilityRole="button"
-        accessibilityLabel={`Open story from ${item.name}`}
-      >
-        <Avatar name={item.name} size={56} backgroundColor={item.color} showStoryRing />
-        <Text style={styles.storyName} numberOfLines={1}>
-          {item.name}
-        </Text>
-      </Pressable>
-    ),
-    [openStories],
-  );
+  const headerStyle = useAnimatedStyle(() => {
+    const h = interpolate(
+      scrollY.value,
+      [0, HEADER_RANGE],
+      [HEADER_EXPANDED + insets.top, HEADER_COLLAPSED + insets.top],
+      Extrapolation.CLAMP,
+    );
+    return { height: h };
+  }, [insets.top]);
 
-  const renderPost: ListRenderItem<Post> = useCallback(
-    ({ item }) => (
-      <FeedPostCard post={item} isGuest={isGuest} onInteractionBlocked={onInteractionBlocked} />
-    ),
-    [isGuest, onInteractionBlocked],
-  );
+  const greetingStyle = useAnimatedStyle(() => {
+    const opacity = interpolate(scrollY.value, [0, HEADER_RANGE * 0.55], [1, 0], Extrapolation.CLAMP);
+    const translateY = interpolate(scrollY.value, [0, HEADER_RANGE], [0, -16], Extrapolation.CLAMP);
+    return {
+      opacity,
+      transform: [{ translateY }],
+    };
+  });
 
-  const listHeader = useMemo(
-    () => (
-      <View style={[styles.headerBlock, { paddingTop: insets.top + spacing.md }]}>
-        <View style={styles.headerTop}>
-          <View style={styles.headerTextBlock}>
-            <Text style={styles.greeting}>Hi, {displayName}</Text>
-            <Text style={styles.subtitle}>Find the best services</Text>
-          </View>
-          <Pressable
-            hitSlop={12}
-            accessibilityRole="button"
-            accessibilityLabel="Notifications"
-            style={styles.notifBtn}
-          >
-            <Ionicons name="notifications-outline" size={26} color={colors.textPrimary} />
-          </Pressable>
-        </View>
+  const topRowStyle = useAnimatedStyle(() => {
+    const opacity = interpolate(scrollY.value, [0, HEADER_RANGE * 0.5], [1, 0], Extrapolation.CLAMP);
+    const translateY = interpolate(scrollY.value, [0, HEADER_RANGE], [0, -20], Extrapolation.CLAMP);
+    return {
+      opacity,
+      transform: [{ translateY }],
+    };
+  });
 
-        <Text style={styles.sectionLabel}>Stories</Text>
-        <FlatList
-          horizontal
-          data={MOCK_STORIES}
-          keyExtractor={(s) => s.id}
-          renderItem={renderStory}
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.storiesContent}
-          nestedScrollEnabled
-          decelerationRate="fast"
-        />
+  const stickySearchStyle = useAnimatedStyle(() => {
+    const translateY = interpolate(
+      scrollY.value,
+      [0, HEADER_RANGE],
+      [0, -Math.max(0, SEARCH_DROP - 8)],
+      Extrapolation.CLAMP,
+    );
+    return {
+      transform: [{ translateY }],
+    };
+  });
 
-        <Text style={[styles.sectionLabel, styles.feedLabel]}>For you</Text>
-      </View>
-    ),
-    [displayName, insets.top, renderStory],
-  );
+  const headerGlassStyle = useAnimatedStyle(() => {
+    const opacity = interpolate(scrollY.value, [0, HEADER_RANGE], [0.04, 0.28], Extrapolation.CLAMP);
+    return { opacity };
+  });
 
   return (
-    <View style={styles.screen}>
-      <FlatList
-        data={MOCK_POSTS}
-        keyExtractor={(p) => p.id}
-        renderItem={renderPost}
-        ListHeaderComponent={listHeader}
-        ItemSeparatorComponent={() => <View style={styles.cardSeparator} />}
-        contentContainerStyle={styles.listContent}
-        showsVerticalScrollIndicator={false}
+    <ImageBackground source={{ uri: HOME_BACKGROUND_URI }} style={styles.bg} resizeMode="cover">
+      <StatusBar style="light" translucent />
+      <View pointerEvents="none" style={styles.backdrop} />
+
+      <HomeHeader
+        topInset={insets.top}
+        searchTop={SEARCH_TOP_EXPANDED}
+        firstName={firstName}
+        location={location}
+        onLocationPress={() => setShowLocationSheet(true)}
+        onSearchSubmit={onSearchSubmit}
+        containerStyle={headerStyle}
+        bgOpacityStyle={headerGlassStyle}
+        topRowStyle={topRowStyle}
+        greetingStyle={greetingStyle}
+        searchStyle={stickySearchStyle}
+      />
+
+      <Animated.ScrollView
+        onScroll={onScroll}
         scrollEventThrottle={16}
-        decelerationRate="normal"
-        bounces
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={[
+          styles.scrollContent,
+          {
+            paddingTop: HEADER_EXPANDED + insets.top + gs.sm,
+            paddingBottom: insets.bottom + gs.xl + 8,
+          },
+        ]}
+      >
+        <View>
+          <Text style={styles.sectionLabel}>Browse</Text>
+          <View style={styles.grid}>
+            <View style={styles.gridRow}>
+              {HOME_CATEGORIES.slice(0, 2).map((c) => (
+                <CategoryCard
+                  key={c.id}
+                  label={c.label}
+                  icon={c.icon}
+                  cut={c.cut}
+                  width={cell}
+                  height={cell}
+                  onPress={tryOpenSearchTab}
+                />
+              ))}
+            </View>
+            <View style={[styles.gridRow, styles.gridRowSpaced]}>
+              {HOME_CATEGORIES.slice(2, 4).map((c) => (
+                <CategoryCard
+                  key={c.id}
+                  label={c.label}
+                  icon={c.icon}
+                  cut={c.cut}
+                  width={cell}
+                  height={cell}
+                  onPress={tryOpenSearchTab}
+                />
+              ))}
+            </View>
+          </View>
+        </View>
+
+        <View>
+          <Text style={[styles.sectionLabel, styles.sectionSpaced]}>Featured</Text>
+          <Animated.ScrollView
+            horizontal
+            nestedScrollEnabled
+            showsHorizontalScrollIndicator={false}
+            decelerationRate="fast"
+            contentContainerStyle={styles.featuredScroll}
+          >
+            {HOME_FEATURED_PROVIDERS.map((p) => (
+              <FeaturedCard
+                key={p.id}
+                name={p.name}
+                rating={p.rating}
+                imageUrl={p.imageUrl}
+                onPress={tryOpenSearchTab}
+              />
+            ))}
+          </Animated.ScrollView>
+        </View>
+
+        {HOME_UPCOMING_BOOKING ? (
+          <View>
+            <Text style={[styles.sectionLabel, styles.sectionSpaced]}>Upcoming</Text>
+            <GlassCard style={styles.upcomingCard}>
+              <View style={styles.upcomingTop}>
+                <Text style={styles.upcomingProvider}>
+                  {HOME_UPCOMING_BOOKING.providerName}
+                </Text>
+                <View style={styles.statusPill}>
+                  <Text style={styles.statusText}>{HOME_UPCOMING_BOOKING.status}</Text>
+                </View>
+              </View>
+              <Text style={styles.upcomingDate}>{HOME_UPCOMING_BOOKING.dateLabel}</Text>
+            </GlassCard>
+          </View>
+        ) : null}
+      </Animated.ScrollView>
+
+      <LocationBottomSheet
+        visible={showLocationSheet}
+        onClose={() => setShowLocationSheet(false)}
+        options={LOCATION_OPTIONS}
+        selected={location}
+        onSelect={(next) => {
+          setLocation(next);
+          setShowLocationSheet(false);
+        }}
       />
-      <LoginPromptModal
-        visible={loginModal}
-        onClose={() => setLoginModal(false)}
-        title="Login required"
-        message={
-          modalReason === 'like'
-            ? 'Sign in to like posts.'
-            : modalReason === 'comment'
-              ? 'Sign in to comment on posts.'
-              : 'Sign in to save posts.'
-        }
-      />
-    </View>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
+  bg: {
     flex: 1,
-    backgroundColor: colors.background,
   },
-  listContent: {
-    paddingHorizontal: spacing.md,
-    paddingBottom: spacing.xl + spacing.lg,
+  backdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: glass.overlay,
   },
-  headerBlock: {
-    paddingBottom: spacing.sm,
-  },
-  headerTop: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-    marginBottom: spacing.lg,
-  },
-  headerTextBlock: {
-    flex: 1,
-    paddingRight: spacing.md,
-  },
-  greeting: {
-    ...typography.heading,
-    marginBottom: spacing.xs,
-  },
-  subtitle: {
-    ...typography.body,
-    color: colors.textSecondary,
-    lineHeight: 22,
-  },
-  notifBtn: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: colors.surface,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: colors.border,
+  scrollContent: {
+    paddingHorizontal: gs.md,
+    flexGrow: 1,
   },
   sectionLabel: {
-    ...typography.caption,
+    fontSize: 13,
     fontWeight: '700',
-    color: colors.textSecondary,
+    color: 'rgba(255,255,255,0.72)',
+    letterSpacing: 1,
     textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    marginBottom: spacing.sm,
+    marginBottom: gs.sm,
   },
-  feedLabel: {
-    marginTop: spacing.md,
+  sectionSpaced: {
+    marginTop: gs.xl,
   },
-  storiesContent: {
-    paddingRight: spacing.md,
-    paddingBottom: spacing.sm,
+  grid: {
+    marginBottom: gs.sm,
   },
-  storyCell: {
+  gridRow: {
+    flexDirection: 'row',
+    gap: gs.sm,
+  },
+  gridRowSpaced: {
+    marginTop: gs.sm,
+  },
+  featuredScroll: {
+    paddingRight: gs.md,
+    paddingBottom: gs.xxs,
+  },
+  upcomingCard: {
+    marginTop: 0,
+  },
+  upcomingTop: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginRight: spacing.md,
-    width: 76,
+    justifyContent: 'space-between',
+    gap: gs.sm,
+    marginBottom: gs.xxs,
   },
-  storyName: {
-    ...typography.caption,
-    marginTop: spacing.xs,
-    textAlign: 'center',
-    width: '100%',
+  upcomingProvider: {
+    flex: 1,
+    fontSize: 17,
+    fontWeight: '700',
+    color: glass.textPrimary,
   },
-  cardSeparator: {
-    height: spacing.md,
+  statusPill: {
+    paddingHorizontal: gs.sm,
+    paddingVertical: 4,
+    borderRadius: 20,
+    backgroundColor: 'rgba(34,197,94,0.35)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.35)',
+  },
+  statusText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: glass.textPrimary,
+  },
+  upcomingDate: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: glass.textSecondary,
   },
 });
