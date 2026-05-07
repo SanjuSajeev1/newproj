@@ -8,7 +8,17 @@ import type { ConcaveCorner } from './categoryClipPath';
 import { buildCategoryClipPath } from './categoryClipPath';
 import { useGlassPressScale } from './useGlassPressScale';
 
-type IconName = 'musical-notes' | 'restaurant' | 'camera' | 'color-palette';
+type IconName =
+  | 'musical-notes'
+  | 'restaurant'
+  | 'camera'
+  | 'color-palette'
+  | 'gift'
+  | 'heart'
+  | 'business'
+  | 'mic'
+  | 'flower'
+  | 'videocam';
 
 type Props = {
   label: string;

@@ -6,5 +6,7 @@ export { HeaderBackgroundCarousel } from './HeaderBackgroundCarousel';
 export { HomeHeader } from './HomeHeader';
 export { LocationBottomSheet } from './LocationBottomSheet';
 export { LocationSelector } from './LocationSelector';
+export { PlanningCard } from './PlanningCard';
 export { ScreenContainer } from './ScreenContainer';
 export { SearchBar } from './SearchBar';
+export { ServiceCategoryCard } from './ServiceCategoryCard';

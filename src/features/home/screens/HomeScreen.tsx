@@ -13,9 +13,18 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useAuthStore } from '../../../store/authStore';
 import { HomeStackParamList } from '../../../shell/navigation/types';
-import { CategoryCard, FeaturedCard, GlassCard, HomeHeader, LocationBottomSheet } from '../components/glass';
+import { HomeHeader, LocationBottomSheet, ServiceCategoryCard } from '../components/glass';
+import { RecentlyAddedSection } from '../components/RecentlyAddedSection';
+import { TopRatedSection } from '../components/TopRatedSection';
+import { TrendingSection } from '../components/TrendingSection';
 import { gs } from '../constants/glassTheme';
-import { HOME_CATEGORIES, HOME_FEATURED_PROVIDERS, HOME_HERO_SLIDES, HOME_UPCOMING_BOOKING } from '../data/homeDashboardMock';
+import {
+  HOME_HERO_SLIDES,
+  HOME_RECENTLY_ADDED,
+  HOME_SERVICE_CATEGORIES,
+  HOME_TOP_RATED_PROFESSIONALS,
+  HOME_TRENDING_NEAR_YOU,
+} from '../data/homeDashboardMock';
 
 type Nav = NativeStackNavigationProp<HomeStackParamList, 'HomeMain'>;
 
@@ -41,10 +50,11 @@ export function HomeScreen() {
     return raw && raw.length > 0 ? raw : 'Sanju';
   }, [user?.name]);
 
-  const cell = useMemo(() => {
-    const horizontalPad = gs.md * 2;
-    const colGap = gs.sm;
-    return (winW - horizontalPad - colGap) / 2;
+  const servicesLayout = useMemo(() => {
+    const gap = gs.md;
+    const available = winW - gs.md * 2;
+    const half = (available - gap) / 2;
+    return { gap, available, half };
   }, [winW]);
 
   const tryOpenSearchTab = useCallback(() => {
@@ -55,6 +65,21 @@ export function HomeScreen() {
       tab.navigate('SearchTab' as never);
     }
   }, [navigation]);
+
+  const openProviderProfile = useCallback(
+    (providerId: string) => {
+      const tab = navigation.getParent();
+      if (!tab) return;
+      tab.navigate(
+        'SearchTab' as never,
+        {
+          screen: 'ProviderProfile',
+          params: { providerId },
+        } as never,
+      );
+    },
+    [navigation],
+  );
 
   const onSearchSubmit = useCallback(
     (_text: string) => {
@@ -144,75 +169,41 @@ export function HomeScreen() {
           },
         ]}
       >
-        <View>
-          <Text style={styles.sectionLabel}>Browse</Text>
-          <View style={styles.grid}>
-            <View style={styles.gridRow}>
-              {HOME_CATEGORIES.slice(0, 2).map((c) => (
-                <CategoryCard
-                  key={c.id}
-                  label={c.label}
-                  icon={c.icon}
-                  cut={c.cut}
-                  width={cell}
-                  height={cell}
-                  onPress={tryOpenSearchTab}
-                />
-              ))}
-            </View>
-            <View style={[styles.gridRow, styles.gridRowSpaced]}>
-              {HOME_CATEGORIES.slice(2, 4).map((c) => (
-                <CategoryCard
-                  key={c.id}
-                  label={c.label}
-                  icon={c.icon}
-                  cut={c.cut}
-                  width={cell}
-                  height={cell}
-                  onPress={tryOpenSearchTab}
-                />
-              ))}
-            </View>
-          </View>
-        </View>
-
-        <View>
-          <Text style={[styles.sectionLabel, styles.sectionSpaced]}>Featured</Text>
-          <Animated.ScrollView
-            horizontal
-            nestedScrollEnabled
-            showsHorizontalScrollIndicator={false}
-            decelerationRate="fast"
-            contentContainerStyle={styles.featuredScroll}
-          >
-            {HOME_FEATURED_PROVIDERS.map((p) => (
-              <FeaturedCard
-                key={p.id}
-                name={p.name}
-                rating={p.rating}
-                imageUrl={p.imageUrl}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Our Services</Text>
+          <View style={[styles.grid, { gap: servicesLayout.gap }]}>
+            <View style={[styles.gridRow, { gap: servicesLayout.gap }]}>
+              <ServiceCategoryCard
+                title={HOME_SERVICE_CATEGORIES[0].title}
+                subtitle={HOME_SERVICE_CATEGORIES[0].subtitle}
+                imageUrl={HOME_SERVICE_CATEGORIES[0].imageUrl}
+                height={176}
+                style={{ width: servicesLayout.half }}
                 onPress={tryOpenSearchTab}
               />
-            ))}
-          </Animated.ScrollView>
+              <ServiceCategoryCard
+                title={HOME_SERVICE_CATEGORIES[1].title}
+                subtitle={HOME_SERVICE_CATEGORIES[1].subtitle}
+                imageUrl={HOME_SERVICE_CATEGORIES[1].imageUrl}
+                height={176}
+                style={{ width: servicesLayout.half }}
+                onPress={tryOpenSearchTab}
+              />
+            </View>
+            <ServiceCategoryCard
+              title={HOME_SERVICE_CATEGORIES[2].title}
+              subtitle={HOME_SERVICE_CATEGORIES[2].subtitle}
+              imageUrl={HOME_SERVICE_CATEGORIES[2].imageUrl}
+              height={196}
+              style={{ width: '100%' }}
+              onPress={tryOpenSearchTab}
+            />
+          </View>
         </View>
 
-        {HOME_UPCOMING_BOOKING ? (
-          <View>
-            <Text style={[styles.sectionLabel, styles.sectionSpaced]}>Upcoming</Text>
-            <GlassCard style={styles.upcomingCard}>
-              <View style={styles.upcomingTop}>
-                <Text style={styles.upcomingProvider}>
-                  {HOME_UPCOMING_BOOKING.providerName}
-                </Text>
-                <View style={styles.statusPill}>
-                  <Text style={styles.statusText}>{HOME_UPCOMING_BOOKING.status}</Text>
-                </View>
-              </View>
-              <Text style={styles.upcomingDate}>{HOME_UPCOMING_BOOKING.dateLabel}</Text>
-            </GlassCard>
-          </View>
-        ) : null}
+        <TopRatedSection data={HOME_TOP_RATED_PROFESSIONALS} onPressProvider={openProviderProfile} />
+        <TrendingSection data={HOME_TRENDING_NEAR_YOU} onPressProvider={openProviderProfile} />
+        <RecentlyAddedSection data={HOME_RECENTLY_ADDED} onPressProvider={openProviderProfile} />
       </Animated.ScrollView>
 
       <LocationBottomSheet
@@ -232,69 +223,24 @@ export function HomeScreen() {
 const styles = StyleSheet.create({
   bg: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#FFFFFF',
   },
   scrollContent: {
     paddingHorizontal: gs.md,
     flexGrow: 1,
   },
-  sectionLabel: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#64748B',
-    letterSpacing: 1,
-    textTransform: 'uppercase',
-    marginBottom: gs.sm,
+  section: {
+    paddingTop: gs.sm,
   },
-  sectionSpaced: {
-    marginTop: gs.xl,
+  sectionTitle: {
+    fontSize: 22,
+    fontWeight: '900',
+    color: '#0F172A',
+    marginBottom: gs.md,
+    letterSpacing: -0.4,
   },
-  grid: {
-    marginBottom: gs.sm,
-  },
+  grid: {},
   gridRow: {
     flexDirection: 'row',
-    gap: gs.sm,
-  },
-  gridRowSpaced: {
-    marginTop: gs.sm,
-  },
-  featuredScroll: {
-    paddingRight: gs.md,
-    paddingBottom: gs.xxs,
-  },
-  upcomingCard: {
-    marginTop: 0,
-  },
-  upcomingTop: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: gs.sm,
-    marginBottom: gs.xxs,
-  },
-  upcomingProvider: {
-    flex: 1,
-    fontSize: 17,
-    fontWeight: '700',
-    color: '#0F172A',
-  },
-  statusPill: {
-    paddingHorizontal: gs.sm,
-    paddingVertical: 4,
-    borderRadius: 20,
-    backgroundColor: '#DCFCE7',
-    borderWidth: 1,
-    borderColor: '#86EFAC',
-  },
-  statusText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#166534',
-  },
-  upcomingDate: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#64748B',
   },
 });
