@@ -1,7 +1,7 @@
 import { useCallback, useRef } from 'react';
 import { Animated, ViewStyle } from 'react-native';
 
-const SCALE_DOWN = 0.97;
+const SCALE_DOWN = 0.985;
 
 export function usePressScale(disabled: boolean) {
   const scale = useRef(new Animated.Value(1)).current;

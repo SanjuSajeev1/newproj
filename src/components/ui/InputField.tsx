@@ -1,6 +1,7 @@
+import { useMemo, useState } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 import type { StyleProp, TextInputProps, ViewStyle } from 'react-native';
-import { colors, radius, spacing, typography } from '../../constants/theme';
+import { colors, radius, shadows, spacing, typography } from '../../constants/theme';
 
 type Props = TextInputProps & {
   label?: string;
@@ -9,6 +10,13 @@ type Props = TextInputProps & {
 };
 
 export function InputField({ label, error, containerStyle, style, ...rest }: Props) {
+  const [focused, setFocused] = useState(false);
+  const shellStyle = useMemo(() => {
+    if (error) return styles.shellError;
+    if (focused) return styles.shellFocused;
+    return undefined;
+  }, [error, focused]);
+
   return (
     <View style={[styles.wrap, containerStyle]}>
       {label ? (
@@ -16,11 +24,22 @@ export function InputField({ label, error, containerStyle, style, ...rest }: Pro
           {label}
         </Text>
       ) : null}
-      <TextInput
-        placeholderTextColor={colors.textSecondary}
-        style={[styles.input, error ? styles.inputError : null, style]}
-        {...rest}
-      />
+      <View style={[styles.shell, shellStyle]}>
+        <TextInput
+          placeholderTextColor={colors.textTertiary}
+          onFocus={(e) => {
+            setFocused(true);
+            rest.onFocus?.(e);
+          }}
+          onBlur={(e) => {
+            setFocused(false);
+            rest.onBlur?.(e);
+          }}
+          style={[styles.input, style]}
+          selectionColor={colors.accentBlue}
+          {...rest}
+        />
+      </View>
       {error ? (
         <Text style={styles.error} accessibilityLiveRegion="polite">
           {error}
@@ -39,25 +58,33 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     marginBottom: spacing.xs,
   },
-  input: {
+  shell: {
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radius.button,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm + 2,
-    fontSize: typography.body.fontSize,
-    fontWeight: '400',
-    color: colors.textPrimary,
-    backgroundColor: colors.surface,
     minHeight: 48,
+    paddingHorizontal: spacing.md,
+    backgroundColor: colors.surfaceMuted,
+    ...shadows.card,
   },
-  inputError: {
-    borderColor: '#DC2626',
+  shellFocused: {
+    borderColor: colors.borderStrong,
+    backgroundColor: colors.surface,
+  },
+  shellError: {
+    borderColor: colors.danger,
+  },
+  input: {
+    minHeight: 48,
+    fontSize: typography.body.fontSize,
+    fontWeight: '500',
+    color: colors.textPrimary,
+    paddingVertical: spacing.sm + 2,
   },
   error: {
     marginTop: spacing.xs,
     fontSize: 12,
     fontWeight: '500',
-    color: '#DC2626',
+    color: colors.danger,
   },
 });

@@ -16,7 +16,7 @@ export type HomeCategory = {
 };
 
 export type HomeServiceCategory = {
-  id: 'events' | 'arts-creative' | 'digital-services';
+  id: 'events' | 'arts-creative' | 'digital-services' | 'beauty-styling';
   title: string;
   subtitle?: string;
   imageUrl: string;
@@ -57,6 +57,12 @@ export const HOME_SERVICE_CATEGORIES: HomeServiceCategory[] = [
     title: 'Digital Services',
     subtitle: 'Web, apps, branding, content & growth',
     imageUrl: 'https://images.unsplash.com/photo-1518779578993-ec3579fee39f?w=1600&q=85',
+  },
+  {
+    id: 'beauty-styling',
+    title: 'Beauty & Styling',
+    subtitle: 'Makeup, bridal styling, hair, nails & more',
+    imageUrl: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=1600&q=85',
   },
 ];
 

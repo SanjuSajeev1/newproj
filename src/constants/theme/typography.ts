@@ -2,13 +2,13 @@ import { colors } from './colors';
 
 export const typography = {
   heading: {
-    fontSize: 26,
-    fontWeight: '700' as const,
+    fontSize: 28,
+    fontWeight: '800' as const,
     color: colors.textPrimary,
   },
   title: {
     fontSize: 20,
-    fontWeight: '600' as const,
+    fontWeight: '800' as const,
     color: colors.textPrimary,
   },
   body: {
@@ -18,7 +18,7 @@ export const typography = {
   },
   caption: {
     fontSize: 13,
-    fontWeight: '500' as const,
+    fontWeight: '700' as const,
     color: colors.textSecondary,
   },
 } as const;

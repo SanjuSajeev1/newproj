@@ -1,7 +1,9 @@
 import { StyleSheet, View } from 'react-native';
 import { SplashScreen } from '../../features/auth/screens/SplashScreen';
-import { WelcomeScreen } from '../../features/auth/screens/WelcomeScreen';
 import { LoginScreen } from '../../features/auth/screens/LoginScreen';
+import { OnboardingScreen } from '../../features/auth/screens/OnboardingScreen';
+import { OtpVerificationScreen } from '../../features/auth/screens/OtpVerificationScreen';
+import { NameInputScreen } from '../../features/auth/screens/NameInputScreen';
 import { RoleSelectionScreen } from '../../features/auth/screens/RoleSelectionScreen';
 import { useAuthStore } from '../../store/authStore';
 import { colors } from '../../constants/theme';
@@ -31,10 +33,14 @@ export function RootNavigator() {
   switch (appFlow) {
     case 'splash':
       return <SplashScreen />;
-    case 'welcome':
-      return <WelcomeScreen />;
+    case 'onboarding':
+      return <OnboardingScreen />;
     case 'login':
       return <LoginScreen />;
+    case 'otp':
+      return <OtpVerificationScreen />;
+    case 'name':
+      return <NameInputScreen />;
     case 'role_select':
       return <RoleSelectionScreen />;
     case 'main':

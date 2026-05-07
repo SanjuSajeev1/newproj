@@ -2,7 +2,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useMemo, useState } from 'react';
-import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, {
   Extrapolation,
@@ -13,10 +13,13 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useAuthStore } from '../../../store/authStore';
 import { HomeStackParamList } from '../../../shell/navigation/types';
-import { HomeHeader, LocationBottomSheet, ServiceCategoryCard } from '../components/glass';
+import { MOCK_POSTS } from '../../../constants/mockData';
+import { HomeHeader, LocationBottomSheet } from '../components/glass';
 import { RecentlyAddedSection } from '../components/RecentlyAddedSection';
 import { TopRatedSection } from '../components/TopRatedSection';
 import { TrendingSection } from '../components/TrendingSection';
+import { FeedPostCard } from '../components/FeedPostCard';
+import { OurServicesSection } from '../components/OurServicesSection';
 import { gs } from '../constants/glassTheme';
 import {
   HOME_HERO_SLIDES,
@@ -31,8 +34,8 @@ type Nav = NativeStackNavigationProp<HomeStackParamList, 'HomeMain'>;
 export function HomeScreen() {
   const navigation = useNavigation<Nav>();
   const insets = useSafeAreaInsets();
-  const { width: winW } = useWindowDimensions();
   const user = useAuthStore((s) => s.user);
+  const isGuest = useAuthStore((s) => s.isGuest);
   const [location, setLocation] = useState('Bangalore');
   const [showLocationSheet, setShowLocationSheet] = useState(false);
   const scrollY = useSharedValue(0);
@@ -50,12 +53,21 @@ export function HomeScreen() {
     return raw && raw.length > 0 ? raw : 'Sanju';
   }, [user?.name]);
 
-  const servicesLayout = useMemo(() => {
-    const gap = gs.md;
-    const available = winW - gs.md * 2;
-    const half = (available - gap) / 2;
-    return { gap, available, half };
-  }, [winW]);
+  const openEvents = useCallback(() => {
+    navigation.navigate('Events');
+  }, [navigation]);
+
+  const openArtsCreative = useCallback(() => {
+    navigation.navigate('ArtsCreative');
+  }, [navigation]);
+
+  const openDigitalServices = useCallback(() => {
+    navigation.navigate('DigitalServices');
+  }, [navigation]);
+
+  const openBeautyStyling = useCallback(() => {
+    navigation.navigate('BeautyStyling');
+  }, [navigation]);
 
   const tryOpenSearchTab = useCallback(() => {
     const tab = navigation.getParent();
@@ -169,41 +181,31 @@ export function HomeScreen() {
           },
         ]}
       >
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Our Services</Text>
-          <View style={[styles.grid, { gap: servicesLayout.gap }]}>
-            <View style={[styles.gridRow, { gap: servicesLayout.gap }]}>
-              <ServiceCategoryCard
-                title={HOME_SERVICE_CATEGORIES[0].title}
-                subtitle={HOME_SERVICE_CATEGORIES[0].subtitle}
-                imageUrl={HOME_SERVICE_CATEGORIES[0].imageUrl}
-                height={176}
-                style={{ width: servicesLayout.half }}
-                onPress={tryOpenSearchTab}
-              />
-              <ServiceCategoryCard
-                title={HOME_SERVICE_CATEGORIES[1].title}
-                subtitle={HOME_SERVICE_CATEGORIES[1].subtitle}
-                imageUrl={HOME_SERVICE_CATEGORIES[1].imageUrl}
-                height={176}
-                style={{ width: servicesLayout.half }}
-                onPress={tryOpenSearchTab}
-              />
-            </View>
-            <ServiceCategoryCard
-              title={HOME_SERVICE_CATEGORIES[2].title}
-              subtitle={HOME_SERVICE_CATEGORIES[2].subtitle}
-              imageUrl={HOME_SERVICE_CATEGORIES[2].imageUrl}
-              height={196}
-              style={{ width: '100%' }}
-              onPress={tryOpenSearchTab}
-            />
-          </View>
-        </View>
+        <OurServicesSection
+          categories={HOME_SERVICE_CATEGORIES}
+          onPressEvents={openEvents}
+          onPressArtsCreative={openArtsCreative}
+          onPressDigitalServices={openDigitalServices}
+          onPressBeautyStyling={openBeautyStyling}
+        />
 
         <TopRatedSection data={HOME_TOP_RATED_PROFESSIONALS} onPressProvider={openProviderProfile} />
         <TrendingSection data={HOME_TRENDING_NEAR_YOU} onPressProvider={openProviderProfile} />
         <RecentlyAddedSection data={HOME_RECENTLY_ADDED} onPressProvider={openProviderProfile} />
+
+        <View style={styles.feedSection}>
+          <Text style={styles.feedTitle}>Feed</Text>
+          <View style={styles.feedList}>
+            {MOCK_POSTS.slice(0, 2).map((post) => (
+              <FeedPostCard
+                key={post.id}
+                post={post}
+                isGuest={isGuest}
+                onInteractionBlocked={() => {}}
+              />
+            ))}
+          </View>
+        </View>
       </Animated.ScrollView>
 
       <LocationBottomSheet
@@ -229,18 +231,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: gs.md,
     flexGrow: 1,
   },
-  section: {
-    paddingTop: gs.sm,
+  feedSection: {
+    marginTop: gs.xl,
   },
-  sectionTitle: {
-    fontSize: 22,
-    fontWeight: '900',
+  feedTitle: {
+    fontSize: 18,
+    fontWeight: '800',
     color: '#0F172A',
-    marginBottom: gs.md,
-    letterSpacing: -0.4,
+    letterSpacing: -0.2,
+    marginBottom: gs.sm,
   },
-  grid: {},
-  gridRow: {
-    flexDirection: 'row',
+  feedList: {
+    gap: gs.md,
   },
 });

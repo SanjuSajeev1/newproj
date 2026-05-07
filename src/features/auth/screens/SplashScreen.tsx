@@ -7,7 +7,7 @@ export function SplashScreen() {
   const setAppFlow = useAuthStore((s) => s.setAppFlow);
 
   useEffect(() => {
-    const t = setTimeout(() => setAppFlow('welcome'), 1600);
+    const t = setTimeout(() => setAppFlow('onboarding'), 1200);
     return () => clearTimeout(t);
   }, [setAppFlow]);
 

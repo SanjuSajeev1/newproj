@@ -1,6 +1,6 @@
 import { ActivityIndicator, Animated, Pressable, StyleSheet, Text } from 'react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
-import { colors, radius, spacing } from '../../constants/theme';
+import { colors, radius, shadows, spacing } from '../../constants/theme';
 import { usePressScale } from './usePressScale';
 
 type Variant = 'primary' | 'secondary';
@@ -49,7 +49,7 @@ export function Button({
       >
         {loading ? (
           <ActivityIndicator
-            color={variant === 'secondary' ? colors.primary : colors.surface}
+            color={variant === 'secondary' ? colors.textPrimary : colors.textOnPrimary}
           />
         ) : (
           <Text
@@ -69,30 +69,32 @@ export function Button({
 
 const styles = StyleSheet.create({
   base: {
-    minHeight: 48,
-    paddingHorizontal: spacing.lg,
+    minHeight: 52,
+    paddingHorizontal: spacing.xl,
     borderRadius: radius.button,
     alignItems: 'center',
     justifyContent: 'center',
+    ...shadows.card,
   },
   primary: {
     backgroundColor: colors.primary,
   },
   secondary: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceMuted,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.borderStrong,
   },
   disabled: {
     opacity: 0.45,
   },
   label: {
     fontSize: 16,
-    fontWeight: '600',
-    color: colors.surface,
+    fontWeight: '800',
+    color: colors.textOnPrimary,
+    letterSpacing: -0.2,
   },
   labelSecondary: {
-    color: colors.primary,
+    color: colors.textPrimary,
   },
   labelDisabled: {
     color: colors.textSecondary,

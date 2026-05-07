@@ -83,6 +83,8 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     zIndex: 20,
+    borderBottomLeftRadius: 28,
+    borderBottomRightRadius: 28,
     overflow: 'hidden',
   },
   headerTint: {

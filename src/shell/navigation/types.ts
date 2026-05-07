@@ -1,10 +1,24 @@
 export type HomeStackParamList = {
   HomeMain: undefined;
   StoryViewer: { initialIndex: number };
+  Events: undefined;
+  ArtsCreative: undefined;
+  DigitalServices: undefined;
+  BeautyStyling: undefined;
+  SubCategoryFull: {
+    main: 'events' | 'arts' | 'digital' | 'beauty';
+    sub: import('../../features/services/data/serviceCatalog').SubCategoryId;
+  };
 };
 
 export type SearchStackParamList = {
-  SearchMain: undefined;
+  SearchMain:
+    | {
+        initialChip?: 'All' | 'Catering' | 'DJ' | 'Photo' | 'Events' | 'Home' | 'Tech';
+        initialQuery?: string;
+      }
+    | undefined;
+  ProviderListing: { serviceName: string; initialQuery?: string; initialChip?: 'All' | 'Catering' | 'DJ' | 'Photo' | 'Events' | 'Home' | 'Tech' };
   ProviderProfile: { providerId: string };
 };
 

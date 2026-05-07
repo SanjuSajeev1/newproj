@@ -12,7 +12,8 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import type { RouteProp } from '@react-navigation/native';
 import { BottomSheetModal, Button, Card } from '../../../components/ui';
 import { MOCK_PROVIDERS, ServiceProvider } from '../../../constants/mockData';
 import { colors, radius, shadows, spacing, typography } from '../../../constants/theme';
@@ -63,8 +64,14 @@ function SearchResultCard({
 
 export function SearchScreen() {
   const navigation = useNavigation<Nav>();
-  const [query, setQuery] = useState('');
-  const [chip, setChip] = useState<ChipId>('All');
+  const route = useRoute<RouteProp<SearchStackParamList, 'SearchMain'>>();
+  const initialQuery = route.params?.initialQuery ?? '';
+  const initialChip = route.params?.initialChip;
+  const safeInitialChip: ChipId =
+    initialChip && (FILTER_CHIPS as readonly string[]).includes(initialChip) ? (initialChip as ChipId) : 'All';
+
+  const [query, setQuery] = useState(initialQuery);
+  const [chip, setChip] = useState<ChipId>(safeInitialChip);
   const [sortBy, setSortBy] = useState<SortKey>('rating');
   const [draftSort, setDraftSort] = useState<SortKey>('rating');
   const [filterSheetOpen, setFilterSheetOpen] = useState(false);

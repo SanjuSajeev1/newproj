@@ -1,81 +1,123 @@
-import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useMemo, useState } from 'react';
+import { ImageBackground, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
-import { Button } from '../../../components/Button';
-import { InputField } from '../../../components/InputField';
 import { colors, spacing, typography } from '../../../constants/theme';
 import { useAuthStore } from '../../../store/authStore';
+import { AuthButton } from '../components/AuthButton';
+import { ModernInput } from '../components/ModernInput';
 
 export function LoginScreen() {
-  const [email, setEmail] = useState('demo@nexus.app');
-  const [password, setPassword] = useState('password');
-  const completeMockLogin = useAuthStore((s) => s.completeMockLogin);
+  const submitPhone = useAuthStore((s) => s.submitPhone);
   const setAppFlow = useAuthStore((s) => s.setAppFlow);
-  const isGuest = useAuthStore((s) => s.isGuest);
 
-  const goBack = () => {
-    if (isGuest) {
-      setAppFlow('main');
-    } else {
-      setAppFlow('welcome');
-    }
-  };
+  const [phone, setPhone] = useState('');
+
+  const canContinue = phone.replace(/\D/g, '').length >= 10;
+
+  const hero = useMemo(
+    () => 'https://images.unsplash.com/photo-1519750157634-b6d493a0f77c?w=1800&q=85',
+    [],
+  );
 
   return (
-    <KeyboardAvoidingView
-      style={styles.flex}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
-      <View style={styles.container}>
-        <Pressable onPress={goBack} hitSlop={12} style={styles.backRow} accessibilityRole="button">
-          <Ionicons name="chevron-back" size={24} color={colors.textPrimary} />
-          <Text style={styles.backLabel}>Back</Text>
-        </Pressable>
-        <Text style={styles.title}>Sign in</Text>
-        <Text style={styles.hint}>Mock login — no real authentication.</Text>
-        <InputField
-          label="Email"
-          value={email}
-          onChangeText={setEmail}
-          autoCapitalize="none"
-          keyboardType="email-address"
-        />
-        <InputField label="Password" value={password} onChangeText={setPassword} secureTextEntry />
-        <Button title="Continue" onPress={completeMockLogin} style={styles.cta} />
-      </View>
-    </KeyboardAvoidingView>
+    <ImageBackground source={{ uri: hero }} style={styles.bg} resizeMode="cover">
+      <LinearGradient
+        colors={['rgba(0,0,0,0.25)', 'rgba(0,0,0,0.35)', 'rgba(0,0,0,0.78)']}
+        locations={[0, 0.45, 1]}
+        style={StyleSheet.absoluteFill}
+      />
+
+      <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <View style={styles.topRow}>
+          <Pressable onPress={() => setAppFlow('onboarding')} hitSlop={12} accessibilityRole="button">
+            <View style={styles.iconBtn}>
+              <Ionicons name="chevron-back" size={22} color="#FFFFFF" />
+            </View>
+          </Pressable>
+        </View>
+
+        <View style={styles.card}>
+          <Animated.Text entering={FadeInDown.duration(520)} style={styles.title}>
+            Continue with your mobile number
+          </Animated.Text>
+          <Animated.Text entering={FadeInDown.delay(60).duration(520)} style={styles.sub}>
+            We’ll send you a one-time code to verify your number.
+          </Animated.Text>
+
+          <View style={{ marginTop: spacing.lg, gap: spacing.md }}>
+            <ModernInput
+              value={phone}
+              onChangeText={setPhone}
+              placeholder="Mobile number"
+              leftIcon="call-outline"
+              keyboardType="phone-pad"
+              autoComplete="tel"
+              textContentType="telephoneNumber"
+            />
+
+            <AuthButton
+              title="Send OTP"
+              onPress={() => submitPhone(phone)}
+              disabled={!canContinue}
+              style={styles.cta}
+            />
+          </View>
+
+          <Text style={styles.legal}>
+            By continuing, you agree to our Terms and confirm you’ve read our Privacy Policy.
+          </Text>
+        </View>
+      </KeyboardAvoidingView>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  flex: {
-    flex: 1,
-    backgroundColor: colors.background,
+  flex: { flex: 1 },
+  bg: { flex: 1 },
+  topRow: {
+    paddingTop: spacing.xl,
+    paddingHorizontal: spacing.lg,
   },
-  container: {
-    flex: 1,
-    padding: spacing.lg,
-    paddingTop: spacing.xl + spacing.md,
-  },
-  backRow: {
-    flexDirection: 'row',
+  iconBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(255,255,255,0.14)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.18)',
     alignItems: 'center',
-    marginBottom: spacing.lg,
+    justifyContent: 'center',
   },
-  backLabel: {
-    ...typography.title,
-    marginLeft: spacing.xs,
+  card: {
+    marginTop: 'auto',
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.xl,
+    paddingBottom: spacing['2xl'],
+    backgroundColor: 'rgba(255,255,255,0.92)',
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
   },
   title: {
-    ...typography.title,
-    marginBottom: spacing.sm,
+    ...typography.heading,
+    fontSize: 26,
+    letterSpacing: -0.6,
   },
-  hint: {
-    ...typography.caption,
-    marginBottom: spacing.lg,
+  sub: {
+    ...typography.body,
     color: colors.textSecondary,
+    marginTop: spacing.sm,
+    lineHeight: 22,
   },
   cta: {
-    marginTop: spacing.md,
+    marginTop: spacing.xs,
+  },
+  legal: {
+    ...typography.caption,
+    color: colors.textSecondary,
+    marginTop: spacing.lg,
+    lineHeight: 18,
   },
 });

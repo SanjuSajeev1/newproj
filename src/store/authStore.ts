@@ -5,11 +5,19 @@ export type AppRole = 'user' | 'provider';
 export type UserProfile = {
   id: string;
   name: string;
-  email: string;
+  fullName?: string;
+  phone?: string;
   avatarColor: string;
 };
 
-export type AppFlow = 'splash' | 'welcome' | 'login' | 'role_select' | 'main';
+export type AppFlow =
+  | 'splash'
+  | 'onboarding'
+  | 'login'
+  | 'otp'
+  | 'name'
+  | 'role_select'
+  | 'main';
 
 type AuthState = {
   appFlow: AppFlow;
@@ -17,20 +25,23 @@ type AuthState = {
   isGuest: boolean;
   currentRole: AppRole | null;
   user: UserProfile | null;
+  pendingPhone: string | null;
   setAppFlow: (flow: AppFlow) => void;
   continueAsGuest: () => void;
   beginLogin: () => void;
-  completeMockLogin: () => void;
+  submitPhone: (phone: string) => void;
+  verifyOtp: (otp: string) => void;
+  submitName: (name: string, fullName?: string) => void;
   setRole: (role: AppRole) => void;
   logout: () => void;
 };
 
-const initialUser: UserProfile = {
-  id: 'u1',
-  name: 'Alex Rivers',
-  email: 'alex@example.com',
-  avatarColor: '#93C5FD',
-};
+function pickAvatarColor(seed: string) {
+  const palette = ['#C7D2FE', '#BAE6FD', '#BBF7D0', '#FDE68A', '#FBCFE8', '#DDD6FE'];
+  let h = 0;
+  for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0;
+  return palette[h % palette.length];
+}
 
 export const useAuthStore = create<AuthState>((set) => ({
   appFlow: 'splash',
@@ -38,6 +49,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   isGuest: false,
   currentRole: null,
   user: null,
+  pendingPhone: null,
 
   setAppFlow: (flow) => set({ appFlow: flow }),
 
@@ -47,18 +59,40 @@ export const useAuthStore = create<AuthState>((set) => ({
       isAuthenticated: false,
       currentRole: null,
       user: null,
+      pendingPhone: null,
       appFlow: 'main',
     }),
 
   beginLogin: () => set({ appFlow: 'login' }),
 
-  completeMockLogin: () =>
+  submitPhone: (phone) =>
     set({
-      isAuthenticated: true,
-      isGuest: false,
-      currentRole: null,
-      user: initialUser,
-      appFlow: 'role_select',
+      pendingPhone: phone,
+      appFlow: 'otp',
+    }),
+
+  verifyOtp: () =>
+    set({
+      appFlow: 'name',
+    }),
+
+  submitName: (name, fullName) =>
+    set((s) => {
+      const phone = s.pendingPhone ?? undefined;
+      return {
+        isAuthenticated: true,
+        isGuest: false,
+        currentRole: null,
+        pendingPhone: null,
+        user: {
+          id: 'u1',
+          name: name.trim(),
+          fullName: fullName?.trim() || undefined,
+          phone,
+          avatarColor: pickAvatarColor(name),
+        },
+        appFlow: 'role_select',
+      };
     }),
 
   setRole: (role) =>
@@ -73,6 +107,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       isGuest: false,
       currentRole: null,
       user: null,
-      appFlow: 'welcome',
+      pendingPhone: null,
+      appFlow: 'onboarding',
     }),
 }));

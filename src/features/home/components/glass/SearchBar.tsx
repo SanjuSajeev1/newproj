@@ -7,6 +7,7 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 import { gs } from '../../constants/glassTheme';
+import { colors, radius, shadows, spacing } from '../../../../constants/theme';
 
 type Props = {
   placeholder?: string;
@@ -37,18 +38,18 @@ export function SearchBar({
   return (
     <Animated.View style={[styles.outer, shellStyle]}>
       <View style={styles.row}>
-        <Ionicons name="search" size={20} color="#64748B" style={styles.icon} />
+        <Ionicons name="search" size={20} color={colors.textSecondary} style={styles.icon} />
         <TextInput
           value={value}
           onChangeText={setValue}
           placeholder={placeholder}
-          placeholderTextColor="#94A3B8"
+          placeholderTextColor={colors.textTertiary}
           style={styles.input}
           returnKeyType="search"
           onSubmitEditing={() => onSubmit?.(value)}
           onFocus={onFocus}
           onBlur={onBlur}
-          selectionColor="#6366F1"
+          selectionColor={colors.accentBlue}
         />
         {value.length > 0 ? (
           <Pressable
@@ -56,7 +57,7 @@ export function SearchBar({
             hitSlop={10}
             accessibilityLabel="Clear search"
           >
-            <Ionicons name="close-circle" size={20} color="#94A3B8" />
+            <Ionicons name="close-circle" size={20} color={colors.textTertiary} />
           </Pressable>
         ) : null}
       </View>
@@ -66,20 +67,16 @@ export function SearchBar({
 
 const styles = StyleSheet.create({
   outer: {
-    borderRadius: 999,
-    backgroundColor: '#FFFFFF',
-    height: 48,
-    paddingHorizontal: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 3,
+    borderRadius: radius.button,
+    backgroundColor: colors.surfaceMuted,
+    height: 52,
+    paddingHorizontal: spacing.md,
+    ...shadows.card,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    minHeight: 48,
+    minHeight: 52,
   },
   icon: {
     marginRight: gs.sm,
@@ -88,8 +85,8 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: 16,
-    fontWeight: '500',
-    color: '#0F172A',
+    fontWeight: '600',
+    color: colors.textPrimary,
     paddingVertical: 4,
   },
 });

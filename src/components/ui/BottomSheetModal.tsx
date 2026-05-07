@@ -145,12 +145,12 @@ const styles = StyleSheet.create({
   },
   backdropFill: {
     flex: 1,
-    backgroundColor: 'rgba(15, 23, 42, 0.45)',
+    backgroundColor: 'rgba(11,15,22,0.48)',
   },
   sheet: {
     backgroundColor: colors.surface,
-    borderTopLeftRadius: radius.card,
-    borderTopRightRadius: radius.card,
+    borderTopLeftRadius: radius.sheet,
+    borderTopRightRadius: radius.sheet,
     paddingBottom: spacing.lg,
     maxHeight: screenHeight * 0.92,
     borderTopWidth: 1,
@@ -165,7 +165,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 4,
     borderRadius: 2,
-    backgroundColor: colors.border,
+    backgroundColor: colors.borderStrong,
   },
   title: {
     ...typography.title,
