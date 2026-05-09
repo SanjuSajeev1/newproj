@@ -138,6 +138,7 @@ export function ProviderProfileScreen() {
             priceFrom={data.priceFrom}
             availability={data.availability ?? 'Available this week'}
             location={data.location}
+            email={data.email}
           />
         </View>
 

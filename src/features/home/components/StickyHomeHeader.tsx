@@ -2,13 +2,21 @@ import { Ionicons } from "@expo/vector-icons";
 import { memo } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Animated, { Extrapolation, interpolate, useAnimatedStyle, type SharedValue } from "react-native-reanimated";
+import Animated, {
+  Extrapolation,
+  interpolate,
+  useAnimatedStyle,
+  type SharedValue,
+} from "react-native-reanimated";
 import { Avatar } from "../../../components/ui/Avatar";
 import { shadows, spacing } from "../../../constants/theme";
 import { gs } from "../constants/glassTheme";
 import { LocationSelector } from "./glass/LocationSelector";
 import { SearchBar } from "./glass/SearchBar";
-import { InlineServiceTabs, type InlineServiceTabId } from "./InlineServiceTabs";
+import {
+  InlineServiceTabs,
+  type InlineServiceTabId,
+} from "./InlineServiceTabs";
 import { DynamicHeaderBackground } from "./DynamicHeaderBackground";
 
 const TOP_ROW_HEIGHT = 42;
@@ -21,6 +29,8 @@ const HEADER_BOTTOM_INSET = spacing.sm;
 const GAP_SEARCH_TO_TABS = 12;
 /** How far the search bar shifts down (px) at full header collapse scroll. */
 const SEARCH_SCROLL_NUDGE = 8;
+/** Bottom corner radius so the sticky header meets the sheet with a slight curve. */
+const HEADER_BOTTOM_RADIUS = 14;
 
 type Props = {
   scrollY: SharedValue<number>;
@@ -62,7 +72,12 @@ function StickyHomeHeaderImpl({
       [expandedHeight + insets.top, collapsedHeight + insets.top],
       Extrapolation.CLAMP,
     );
-    const elevated = interpolate(scrollY.value, [0, 8, 28], [0, 0.55, 1], Extrapolation.CLAMP);
+    const elevated = interpolate(
+      scrollY.value,
+      [0, 8, 28],
+      [0, 0.55, 1],
+      Extrapolation.CLAMP,
+    );
     return {
       height: h,
       shadowOpacity: (shadows.card.shadowOpacity ?? 0.06) * elevated,
@@ -71,18 +86,27 @@ function StickyHomeHeaderImpl({
   }, [collapsedHeight, expandedHeight, insets.top, range]);
 
   const topRowStyle = useAnimatedStyle(() => {
-    const translateY = interpolate(scrollY.value, [0, range], [0, -4], Extrapolation.CLAMP);
+    const translateY = interpolate(
+      scrollY.value,
+      [0, range],
+      [0, -4],
+      Extrapolation.CLAMP,
+    );
     return { transform: [{ translateY }] };
   }, [range]);
 
-  /** Slight downward drift while scrolling / collapsing header (positive translateY). */
   const searchScrollStyle = useAnimatedStyle(() => {
-    const nudgeY = interpolate(scrollY.value, [0, range], [0, SEARCH_SCROLL_NUDGE], Extrapolation.CLAMP);
+    const nudgeY = interpolate(
+      scrollY.value,
+      [0, range],
+      [0, SEARCH_SCROLL_NUDGE],
+      Extrapolation.CLAMP,
+    );
     return { transform: [{ translateY: nudgeY }] };
   }, [range]);
 
-  /** Search sits directly above tabs; tabs pinned to header bottom */
-  const searchBottom = HEADER_BOTTOM_INSET + MAIN_TAB_BAND_HEIGHT + GAP_SEARCH_TO_TABS;
+  const searchBottom =
+    HEADER_BOTTOM_INSET + MAIN_TAB_BAND_HEIGHT + GAP_SEARCH_TO_TABS;
   const tabsBottom = HEADER_BOTTOM_INSET;
 
   return (
@@ -96,7 +120,11 @@ function StickyHomeHeaderImpl({
 
       <View style={styles.inner}>
         <Animated.View
-          style={[styles.topRowWrap, { paddingTop: topInset, paddingHorizontal: spacing.md }, topRowStyle]}
+          style={[
+            styles.topRowWrap,
+            { paddingTop: topInset, paddingHorizontal: spacing.md },
+            topRowStyle,
+          ]}
         >
           <LocationSelector location={location} onPress={onLocationPress} />
 
@@ -108,7 +136,11 @@ function StickyHomeHeaderImpl({
               accessibilityRole="button"
               accessibilityLabel="Notifications"
             >
-              <Ionicons name="notifications-outline" size={20} color="rgba(255,255,255,0.95)" />
+              <Ionicons
+                name="notifications-outline"
+                size={20}
+                color="rgba(255,255,255,0.95)"
+              />
             </Pressable>
 
             <Pressable
@@ -118,18 +150,42 @@ function StickyHomeHeaderImpl({
               accessibilityLabel="Profile"
             >
               <View style={styles.avatarWrap}>
-                <Avatar name={firstName} size={34} backgroundColor="rgba(255,255,255,0.20)" showStoryRing />
+                <Avatar
+                  name={firstName}
+                  size={34}
+                  backgroundColor="rgba(255,255,255,0.20)"
+                  showStoryRing
+                />
               </View>
             </Pressable>
           </View>
         </Animated.View>
 
-        <Animated.View style={[styles.searchFloating, { bottom: searchBottom }, searchScrollStyle]}>
-          <SearchBar onSubmit={onSearchSubmit} placeholder="Search DJs, designers, stylists..." />
+        <Animated.View
+          style={[
+            styles.searchFloating,
+            { bottom: searchBottom },
+            searchScrollStyle,
+          ]}
+        >
+          <SearchBar
+            onSubmit={onSearchSubmit}
+            placeholder="Search DJs, designers, stylists..."
+          />
         </Animated.View>
 
-        <View style={[styles.tabsBand, { bottom: tabsBottom }]} pointerEvents="box-none">
-          <InlineServiceTabs value={tab} onChange={onTabChange} variant="onDark" level="main" showDivider={false} compact />
+        <View
+          style={[styles.tabsBand, { bottom: tabsBottom }]}
+          pointerEvents="box-none"
+        >
+          <InlineServiceTabs
+            value={tab}
+            onChange={onTabChange}
+            variant="onDark"
+            level="main"
+            showDivider={false}
+            compact
+          />
         </View>
       </View>
     </Animated.View>
@@ -147,6 +203,8 @@ const styles = StyleSheet.create({
     zIndex: 50,
     ...shadows.card,
     overflow: "hidden",
+    borderBottomLeftRadius: HEADER_BOTTOM_RADIUS,
+    borderBottomRightRadius: HEADER_BOTTOM_RADIUS,
   },
   inner: {
     flex: 1,

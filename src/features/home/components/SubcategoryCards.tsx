@@ -1,7 +1,24 @@
-import { memo, useEffect } from "react";
-import { Image, Pressable, ScrollView, StyleSheet, Text, View, type ViewStyle } from "react-native";
-import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
-import { colors, shadows, spacing } from "../../../constants/theme";
+import { Ionicons } from "@expo/vector-icons";
+import type { ComponentProps } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
+import {
+  Image,
+  LayoutChangeEvent,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  type ViewStyle,
+} from "react-native";
+import Animated, {
+  interpolateColor,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  withTiming,
+} from "react-native-reanimated";
+import { colors, shadows } from "../../../constants/theme";
 import { gs } from "../constants/glassTheme";
 import { useGlassPressScale } from "./glass/useGlassPressScale";
 
@@ -11,130 +28,264 @@ export type SubcategoryItem<T extends string> = {
   imageUrl: string;
 };
 
-type Props<T extends string> = {
-  title: string;
+type IonName = ComponentProps<typeof Ionicons>["name"];
+
+type BaseProps<T extends string> = {
+  caption?: string;
   items: SubcategoryItem<T>[];
-  value: T;
-  onChange: (next: T) => void;
+  iconFor?: (id: T) => IonName;
   style?: ViewStyle;
   transitionKey?: string;
 };
 
-const timing = { duration: 200 };
+type SelectProps<T extends string> = BaseProps<T> & {
+  mode?: "select";
+  value: T;
+  onChange: (next: T) => void;
+};
 
-function SubcategoryCardsImpl<T extends string>({ title, items, value, onChange, style, transitionKey }: Props<T>) {
-  const opacity = useSharedValue(1);
-  const translateY = useSharedValue(0);
+type NavigateProps<T extends string> = BaseProps<T> & {
+  mode: "navigate";
+  onPressItem: (item: SubcategoryItem<T>) => void;
+};
 
-  useEffect(() => {
-    opacity.value = 0;
-    translateY.value = 6;
-    opacity.value = withTiming(1, timing);
-    translateY.value = withTiming(0, timing);
-  }, [opacity, translateY, transitionKey]);
+type Props<T extends string> = SelectProps<T> | NavigateProps<T>;
 
-  const animStyle = useAnimatedStyle(() => ({
-    opacity: opacity.value,
-    transform: [{ translateY: translateY.value }],
-  }));
+const GAP = 10;
+const SELECT_SPRING = { damping: 19, stiffness: 280, mass: 0.42 };
+const ENTER = { duration: 240 };
 
-  return (
-    <Animated.View style={[styles.wrap, animStyle, style]}>
-      <Text style={styles.title}>{title}</Text>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} decelerationRate="fast" contentContainerStyle={styles.row}>
-        {items.map((it) => (
-          <SubCard key={it.id} item={it} active={it.id === value} onPress={() => onChange(it.id)} />
-        ))}
-      </ScrollView>
-    </Animated.View>
-  );
-}
-
-function SubCard<T extends string>({
+function SubTile<T extends string>({
   item,
   active,
+  width,
+  icon,
   onPress,
 }: {
   item: SubcategoryItem<T>;
   active: boolean;
+  width: number;
+  icon?: IonName;
   onPress: () => void;
 }) {
-  const { animatedStyle, onPressIn, onPressOut } = useGlassPressScale(0.97);
+  const { animatedStyle, onPressIn, onPressOut } = useGlassPressScale(0.985);
+  const select = useSharedValue(active ? 1 : 0);
+  const [hovered, setHovered] = useState(false);
+
+  useEffect(() => {
+    select.value = withSpring(active ? 1 : 0, SELECT_SPRING);
+  }, [active, select]);
+
+  const shellStyle = useAnimatedStyle(() => ({
+    borderColor: interpolateColor(
+      select.value,
+      [0, 1],
+      ["#E8EAEF", "rgba(37, 99, 235, 0.38)"],
+    ),
+    backgroundColor: interpolateColor(
+      select.value,
+      [0, 1],
+      ["#FFFFFF", "#F5F8FF"],
+    ),
+  }));
+
+  const shadowAnim = useAnimatedStyle(() => ({
+    shadowOpacity: 0.04 + select.value * 0.07,
+    shadowRadius: 12 + select.value * 6,
+  }));
+
+  const onHoverIn = useCallback(() => {
+    if (Platform.OS === "web") setHovered(true);
+  }, []);
+  const onHoverOut = useCallback(() => {
+    if (Platform.OS === "web") setHovered(false);
+  }, []);
+
   return (
     <Pressable
       onPress={onPress}
       onPressIn={onPressIn}
       onPressOut={onPressOut}
-      style={styles.cardPress}
+      onHoverIn={onHoverIn}
+      onHoverOut={onHoverOut}
+      style={{ width }}
       accessibilityRole="button"
       accessibilityState={{ selected: active }}
       accessibilityLabel={item.label}
     >
-      <Animated.View style={[styles.card, active ? styles.cardActive : styles.cardIdle, animatedStyle]}>
-        <Image source={{ uri: item.imageUrl }} style={styles.image} />
-        <View style={styles.overlay} />
-        <Text numberOfLines={2} style={styles.label}>
-          {item.label}
-        </Text>
+      <Animated.View
+        style={[
+          styles.tile,
+          shellStyle,
+          shadowAnim,
+          shadows.card,
+          animatedStyle,
+          hovered && Platform.OS === "web" ? styles.tileHoverWeb : null,
+        ]}
+      >
+        <View style={styles.tileRow}>
+          <View style={styles.thumbWrap}>
+            <Image source={{ uri: item.imageUrl }} style={styles.thumb} />
+            {icon ? (
+              <View style={styles.thumbBadge}>
+                <Ionicons name={icon} size={14} color={colors.accentBlue} />
+              </View>
+            ) : null}
+          </View>
+          <Text
+            style={[styles.tileLabel, active ? styles.tileLabelActive : styles.tileLabelIdle]}
+            numberOfLines={2}
+          >
+            {item.label}
+          </Text>
+        </View>
       </Animated.View>
     </Pressable>
   );
 }
 
-export const SubcategoryCards = memo(SubcategoryCardsImpl) as typeof SubcategoryCardsImpl;
+function SubcategoryCardsImpl<T extends string>(props: Props<T>) {
+  const navigateMode = props.mode === "navigate";
+  const caption = props.caption;
+  const iconFor = props.iconFor;
+  const style = props.style;
+  const transitionKey = props.transitionKey;
+
+  const opacity = useSharedValue(1);
+  const translateY = useSharedValue(0);
+  const [gridW, setGridW] = useState(0);
+
+  useEffect(() => {
+    opacity.value = 0;
+    translateY.value = 10;
+    opacity.value = withTiming(1, ENTER);
+    translateY.value = withSpring(0, { damping: 22, stiffness: 200 });
+  }, [opacity, translateY, transitionKey]);
+
+  const containerStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+    transform: [{ translateY: translateY.value }],
+  }));
+
+  const onGridLayout = useCallback((e: LayoutChangeEvent) => {
+    setGridW(e.nativeEvent.layout.width);
+  }, []);
+
+  const columns = gridW >= 480 ? 2 : 1;
+  const cardWidth = useMemo(() => {
+    if (gridW <= 0) return 300;
+    return (gridW - GAP * (columns - 1)) / columns;
+  }, [columns, gridW]);
+
+  const selectedId = navigateMode ? undefined : props.value;
+
+  const onTilePress = (it: SubcategoryItem<T>) => {
+    if (navigateMode) {
+      props.onPressItem(it);
+    } else {
+      props.onChange(it.id);
+    }
+  };
+
+  return (
+    <Animated.View style={[styles.wrap, containerStyle, style]} onLayout={onGridLayout}>
+      {caption ? <Text style={styles.caption}>{caption}</Text> : null}
+      <View style={styles.grid}>
+        {props.items.map((it) => (
+          <SubTile
+            key={String(it.id)}
+            item={it}
+            active={navigateMode ? false : it.id === selectedId}
+            width={cardWidth}
+            icon={iconFor?.(it.id)}
+            onPress={() => onTilePress(it)}
+          />
+        ))}
+      </View>
+    </Animated.View>
+  );
+}
+
+export const SubcategoryCards = memo(
+  SubcategoryCardsImpl,
+) as typeof SubcategoryCardsImpl;
 
 const styles = StyleSheet.create({
   wrap: {
-    marginTop: gs.lg,
+    marginTop: gs.xl,
+    width: "100%",
   },
-  title: {
-    paddingHorizontal: spacing.md,
-    fontSize: 16,
-    fontWeight: "900",
-    color: "#0F172A",
-    letterSpacing: -0.3,
-    marginBottom: gs.sm,
+  caption: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: colors.textTertiary,
+    letterSpacing: 0.4,
+    textTransform: "uppercase",
+    marginBottom: gs.sm + 2,
   },
-  row: {
-    paddingHorizontal: spacing.md,
-    paddingRight: spacing.md,
-    gap: gs.sm,
+  grid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: GAP,
   },
-  cardPress: {
-    width: 112,
+  tile: {
+    borderRadius: 14,
+    borderWidth: StyleSheet.hairlineWidth + 0.5,
+    paddingVertical: gs.md,
+    paddingHorizontal: gs.md,
+    minHeight: 72,
+    shadowColor: "#0B0F16",
+    shadowOffset: { width: 0, height: 3 },
+    shadowRadius: 10,
+    elevation: 2,
   },
-  card: {
-    height: 122,
-    borderRadius: 22,
+  tileHoverWeb: {
+    shadowOpacity: 0.11,
+    elevation: 6,
+  },
+  tileRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: gs.md,
+  },
+  thumbWrap: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
     overflow: "hidden",
     backgroundColor: colors.surfaceMuted,
-    ...shadows.card,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: "#E8EAEF",
   },
-  cardActive: {
-    borderWidth: 1,
-    borderColor: "rgba(37,99,235,0.34)",
-  },
-  cardIdle: {
-    borderWidth: 1,
-    borderColor: "rgba(15,23,42,0.06)",
-  },
-  image: {
+  thumb: {
     width: "100%",
     height: "100%",
   },
-  overlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(2,6,23,0.28)",
-  },
-  label: {
+  thumbBadge: {
     position: "absolute",
-    left: 10,
-    right: 10,
-    bottom: 10,
-    fontSize: 13,
-    fontWeight: "900",
-    color: "#FFFFFF",
-    letterSpacing: -0.2,
+    right: 4,
+    bottom: 4,
+    width: 22,
+    height: 22,
+    borderRadius: 8,
+    backgroundColor: "rgba(255,255,255,0.94)",
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: "rgba(37,99,235,0.12)",
+  },
+  tileLabel: {
+    flex: 1,
+    fontSize: 15,
+    lineHeight: 20,
+    letterSpacing: -0.35,
+  },
+  tileLabelActive: {
+    color: colors.textPrimary,
+    fontWeight: "700",
+  },
+  tileLabelIdle: {
+    color: colors.textSecondary,
+    fontWeight: "600",
   },
 });
-

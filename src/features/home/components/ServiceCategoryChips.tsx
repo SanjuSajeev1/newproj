@@ -8,7 +8,11 @@ import {
   View,
   type ViewStyle,
 } from "react-native";
-import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 import { colors, shadows, spacing } from "../../../constants/theme";
 
 export type ChipItem<T extends string> = {
@@ -26,13 +30,21 @@ type Props<T extends string> = {
 type Layout = { x: number; width: number };
 const timing = { duration: 180 };
 
-function ServiceCategoryChipsImpl<T extends string>({ items, value, onChange, style }: Props<T>) {
+function ServiceCategoryChipsImpl<T extends string>({
+  items,
+  value,
+  onChange,
+  style,
+}: Props<T>) {
   const layoutsRef = useRef<Record<string, Layout | undefined>>({});
   const [readyCount, setReadyCount] = useState(0);
   const activeX = useSharedValue(0);
   const activeW = useSharedValue(0);
 
-  const activeIndex = useMemo(() => items.findIndex((i) => i.id === value), [items, value]);
+  const activeIndex = useMemo(
+    () => items.findIndex((i) => i.id === value),
+    [items, value],
+  );
 
   const move = useCallback(
     (id: T) => {
@@ -73,7 +85,10 @@ function ServiceCategoryChipsImpl<T extends string>({ items, value, onChange, st
         bounces={false}
       >
         <View style={styles.track}>
-          <Animated.View pointerEvents="none" style={[styles.activePill, indicatorStyle]} />
+          <Animated.View
+            pointerEvents="none"
+            style={[styles.activePill, indicatorStyle]}
+          />
           {items.map((it, idx) => {
             const active = idx === activeIndex;
             return (
@@ -89,7 +104,13 @@ function ServiceCategoryChipsImpl<T extends string>({ items, value, onChange, st
                 accessibilityState={{ selected: active }}
                 style={styles.chip}
               >
-                <Text style={[styles.text, active ? styles.textActive : styles.textIdle]} numberOfLines={1}>
+                <Text
+                  style={[
+                    styles.text,
+                    active ? styles.textActive : styles.textIdle,
+                  ]}
+                  numberOfLines={1}
+                >
                   {it.label}
                 </Text>
               </Pressable>
@@ -101,7 +122,9 @@ function ServiceCategoryChipsImpl<T extends string>({ items, value, onChange, st
   );
 }
 
-export const ServiceCategoryChips = memo(ServiceCategoryChipsImpl) as typeof ServiceCategoryChipsImpl;
+export const ServiceCategoryChips = memo(
+  ServiceCategoryChipsImpl,
+) as typeof ServiceCategoryChipsImpl;
 
 const styles = StyleSheet.create({
   wrap: {
@@ -148,4 +171,3 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
 });
-

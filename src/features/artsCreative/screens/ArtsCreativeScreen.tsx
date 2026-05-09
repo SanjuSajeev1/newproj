@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { HomeStackParamList, SearchStackParamList } from '../../../shell/navigation/types';
+import type { HomeStackParamList } from '../../../shell/navigation/types';
 import { gs } from '../../home/constants/glassTheme';
 import { CategoryHero } from '../../services/components/CategoryHero';
 import { SubCategorySection } from '../../services/components/SubCategorySection';
@@ -20,15 +20,10 @@ export function ArtsCreativeScreen() {
 
   const openService = useCallback(
     (serviceName: string) => {
-      const tab = navigation.getParent();
-      if (!tab) return;
-      tab.navigate(
-        'SearchTab' as never,
-        {
-          screen: 'ProviderListing',
-          params: { serviceName, initialQuery: '' },
-        } as never,
-      );
+      navigation.navigate('Search', {
+        screen: 'ProviderListing',
+        params: { serviceName, initialQuery: '' },
+      });
     },
     [navigation],
   );

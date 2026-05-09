@@ -29,6 +29,8 @@ export type ServiceProvider = {
   priceFrom: number;
   category: string;
   location?: string;
+  /** Contact email shown on provider profile. */
+  email?: string;
   bio?: string;
   verified?: boolean;
   availability?: string;
@@ -126,6 +128,7 @@ export const MOCK_PROVIDERS: ServiceProvider[] = [
     priceFrom: 85,
     category: 'Home',
     location: 'Indiranagar',
+    email: 'northside.cleaning@mock.app',
     bio: 'Deep cleans and weekly refresh — punctual, quiet, spotless.',
     verified: true,
     availability: 'Available this week',
@@ -145,6 +148,7 @@ export const MOCK_PROVIDERS: ServiceProvider[] = [
     priceFrom: 200,
     category: 'Photo',
     location: 'Koramangala',
+    email: 'hello@lensandlight.mock.app',
     bio: 'Golden hour portraits and event coverage with editorial polish.',
     verified: true,
     availability: 'Next slot: Sat',
@@ -174,6 +178,7 @@ export const MOCK_PROVIDERS: ServiceProvider[] = [
     priceFrom: 120,
     category: 'Tech',
     location: 'HSR Layout',
+    email: 'support@techtune.mock.app',
     bio: 'Fast fixes, clean setups, and long-term support for teams.',
     verified: false,
     availability: 'Available today',
@@ -193,6 +198,7 @@ export const MOCK_PROVIDERS: ServiceProvider[] = [
     priceFrom: 450,
     category: 'Events',
     location: 'Indiranagar',
+    email: 'events@velvet.mock.app',
     bio: 'Full-service event planning with premium vendor coordination.',
     verified: true,
     availability: 'Bookings open',
@@ -212,6 +218,7 @@ export const MOCK_PROVIDERS: ServiceProvider[] = [
     priceFrom: 65,
     category: 'Catering',
     location: 'Whitefield',
+    email: 'bookings@summit.mock.app',
     bio: 'Modern menus, impeccable service, and flawless setup.',
     verified: true,
     availability: 'Available this week',
@@ -231,6 +238,7 @@ export const MOCK_PROVIDERS: ServiceProvider[] = [
     priceFrom: 320,
     category: 'DJ',
     location: 'Koramangala',
+    email: 'book@pulse-dj.mock.app',
     bio: 'Crowd-reading sets with pro sound — weddings, clubs, and festivals.',
     verified: true,
     availability: 'Available this weekend',
@@ -259,6 +267,7 @@ export const MOCK_PROVIDERS: ServiceProvider[] = [
     priceFrom: 48,
     category: 'Catering',
     location: 'HSR Layout',
+    email: 'chef@artisanbites.mock.app',
     bio: 'Fresh, seasonal bites with boutique presentation.',
     verified: false,
     availability: 'Limited slots',
@@ -278,6 +287,7 @@ export const MOCK_PROVIDERS: ServiceProvider[] = [
     priceFrom: 280,
     category: 'DJ',
     location: 'Indiranagar',
+    email: 'booking@metrovinyl.mock.app',
     bio: 'Vinyl-forward sets with classy transitions and warm grooves.',
     verified: true,
     availability: 'Available this week',
@@ -297,6 +307,7 @@ export const MOCK_PROVIDERS: ServiceProvider[] = [
     priceFrom: 175,
     category: 'Photo',
     location: 'Whitefield',
+    email: 'hello@snapstudio.mock.app',
     bio: 'Photo booth + props + instant prints — sleek setups.',
     verified: true,
     availability: 'Available this week',
@@ -316,6 +327,7 @@ export const MOCK_PROVIDERS: ServiceProvider[] = [
     priceFrom: 299,
     category: 'Beauty',
     location: 'Koramangala',
+    email: 'hello@bridalglow.mock.app',
     bio: 'Soft glam and bridal looks with skin-first prep and longevity.',
     verified: true,
     availability: 'Available this week',
@@ -344,6 +356,7 @@ export const MOCK_PROVIDERS: ServiceProvider[] = [
     priceFrom: 149,
     category: 'Beauty',
     location: 'HSR Layout',
+    email: 'aanya@mehndi.mock.app',
     bio: 'Fine-line bridal mehndi with custom motifs and fast, clean work.',
     verified: true,
     availability: 'Next slot: Sun',
@@ -363,6 +376,7 @@ export const MOCK_PROVIDERS: ServiceProvider[] = [
     priceFrom: 399,
     category: 'Tech',
     location: 'Indiranagar',
+    email: 'team@codecraft.mock.app',
     bio: 'Modern websites and apps — fast, responsive, conversion-focused.',
     verified: true,
     availability: 'Available this week',

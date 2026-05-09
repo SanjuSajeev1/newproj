@@ -1,15 +1,7 @@
-export type HomeStackParamList = {
-  HomeMain: undefined;
-  StoryViewer: { initialIndex: number };
-  Events: undefined;
-  ArtsCreative: undefined;
-  DigitalServices: undefined;
-  BeautyStyling: undefined;
-  SubCategoryFull: {
-    main: 'events' | 'arts' | 'digital' | 'beauty';
-    sub: import('../../features/services/data/serviceCatalog').SubCategoryId;
-  };
-};
+import type { NavigatorScreenParams } from '@react-navigation/native';
+
+/** Story modal; used from Home and Feed stacks. */
+export type StoryViewerParams = { initialIndex?: number };
 
 export type SearchStackParamList = {
   SearchMain:
@@ -20,6 +12,41 @@ export type SearchStackParamList = {
     | undefined;
   ProviderListing: { serviceName: string; initialQuery?: string; initialChip?: 'All' | 'Catering' | 'DJ' | 'Photo' | 'Events' | 'Home' | 'Tech' };
   ProviderProfile: { providerId: string };
+};
+
+export type ProfileStackParamList = {
+  ProfileMain: undefined;
+  SavedItems: undefined;
+  BookingHistory: undefined;
+};
+
+export type GuestProfileStackParamList = {
+  ProfileMain: undefined;
+};
+
+export type HomeMainDiscoveryTabParam =
+  | 'events'
+  | 'arts-creative'
+  | 'digital-services'
+  | 'beauty-styling';
+
+export type HomeStackParamList = {
+  HomeMain: undefined;
+  StoryViewer: StoryViewerParams;
+  Events: undefined;
+  ArtsCreative: undefined;
+  DigitalServices: undefined;
+  BeautyStyling: undefined;
+  SubCategoryFull: {
+    main: 'events' | 'arts' | 'digital' | 'beauty';
+    sub: import('../../features/services/data/serviceCatalog').SubCategoryId;
+  };
+  DiscoveryCategoryDetail: {
+    mainTab: HomeMainDiscoveryTabParam;
+    categoryId: string;
+  };
+  Search: NavigatorScreenParams<SearchStackParamList>;
+  Profile: NavigatorScreenParams<ProfileStackParamList>;
 };
 
 export type BookingsStackParamList = {
@@ -36,14 +63,9 @@ export type ChatStackParamList = {
   Conversation: { threadId: string; title: string };
 };
 
-export type ProfileStackParamList = {
-  ProfileMain: undefined;
-  SavedItems: undefined;
-  BookingHistory: undefined;
-};
-
-export type GuestProfileStackParamList = {
-  ProfileMain: undefined;
+export type FeedStackParamList = {
+  FeedMain: undefined;
+  StoryViewer: StoryViewerParams;
 };
 
 export type DashboardStackParamList = {
@@ -54,22 +76,20 @@ export type DashboardStackParamList = {
 
 export type GuestTabParamList = {
   HomeTab: undefined;
-  SearchTab: undefined;
-  ProfileTab: undefined;
+  FeedTab: undefined;
 };
 
 export type UserTabParamList = {
   HomeTab: undefined;
-  SearchTab: undefined;
+  FeedTab: undefined;
   BookingsTab: undefined;
   ChatTab: undefined;
-  ProfileTab: undefined;
 };
 
 export type ProviderTabParamList = {
   HomeTab: undefined;
+  FeedTab: undefined;
   DashboardTab: undefined;
   BookingsTab: undefined;
   ChatTab: undefined;
-  ProfileTab: undefined;
 };

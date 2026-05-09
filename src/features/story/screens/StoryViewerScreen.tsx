@@ -15,12 +15,13 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Avatar } from '../../../components/ui';
 import { MOCK_STORIES } from '../../../constants/mockData';
 import { spacing, typography } from '../../../constants/theme';
-import { HomeStackParamList } from '../../../shell/navigation/types';
+import type { StoryViewerParams } from '../../../shell/navigation/types';
 
 const STORY_DURATION_MS = 5200;
 
-type R = RouteProp<HomeStackParamList, 'StoryViewer'>;
-type Nav = NativeStackNavigationProp<HomeStackParamList, 'StoryViewer'>;
+type StoryViewerRouteList = { StoryViewer: StoryViewerParams };
+type R = RouteProp<StoryViewerRouteList, 'StoryViewer'>;
+type Nav = NativeStackNavigationProp<StoryViewerRouteList, 'StoryViewer'>;
 
 export function StoryViewerScreen() {
   const route = useRoute<R>();

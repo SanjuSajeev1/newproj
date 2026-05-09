@@ -3,7 +3,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { gs } from '../../home/constants/glassTheme';
-import type { HomeStackParamList, SearchStackParamList } from '../../../shell/navigation/types';
+import type { HomeStackParamList } from '../../../shell/navigation/types';
 import { CategoryHero } from '../../services/components/CategoryHero';
 import { SubCategorySection } from '../../services/components/SubCategorySection';
 import { SERVICE_CATALOG } from '../../services/data/serviceCatalog';
@@ -64,19 +64,14 @@ export function EventsScreen() {
 
   const openService = useCallback(
     (serviceName: string) => {
-      const tab = navigation.getParent();
-      if (!tab) return;
-      tab.navigate(
-        'SearchTab' as never,
-        {
-          screen: 'ProviderListing',
-          params: {
-            serviceName,
-            initialChip: 'Events',
-            initialQuery: '',
-          },
-        } as never,
-      );
+      navigation.navigate('Search', {
+        screen: 'ProviderListing',
+        params: {
+          serviceName,
+          initialChip: 'Events',
+          initialQuery: '',
+        },
+      });
     },
     [navigation],
   );

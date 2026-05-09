@@ -8,9 +8,15 @@ type Props = {
   priceFrom: number;
   availability: string;
   location?: string;
+  email?: string;
 };
 
-export const ProfileInfoCard = memo(function ProfileInfoCard({ priceFrom, availability, location }: Props) {
+export const ProfileInfoCard = memo(function ProfileInfoCard({
+  priceFrom,
+  availability,
+  location,
+  email,
+}: Props) {
   return (
     <Card padded style={styles.card}>
       <View style={styles.row}>
@@ -32,10 +38,19 @@ export const ProfileInfoCard = memo(function ProfileInfoCard({ priceFrom, availa
       </View>
 
       {location ? (
-        <View style={styles.locationRow}>
+        <View style={[styles.metaRow, styles.metaAfterGrid]}>
           <Ionicons name="location-outline" size={16} color={colors.textSecondary} />
-          <Text style={styles.locationText} numberOfLines={1}>
+          <Text style={styles.metaText} numberOfLines={1}>
             {location}
+          </Text>
+        </View>
+      ) : null}
+
+      {email ? (
+        <View style={[styles.metaRow, location ? styles.metaRowSpaced : styles.metaAfterGrid]}>
+          <Ionicons name="mail-outline" size={16} color={colors.textSecondary} />
+          <Text style={styles.metaText} numberOfLines={2} selectable>
+            {email}
           </Text>
         </View>
       ) : null}
@@ -71,8 +86,10 @@ const styles = StyleSheet.create({
     ...typography.title,
     fontSize: 16,
   },
-  locationRow: {
+  metaAfterGrid: {
     marginTop: spacing.md,
+  },
+  metaRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
@@ -83,7 +100,10 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     backgroundColor: colors.surface,
   },
-  locationText: {
+  metaRowSpaced: {
+    marginTop: spacing.sm,
+  },
+  metaText: {
     ...typography.body,
     color: colors.textSecondary,
     fontWeight: '700',

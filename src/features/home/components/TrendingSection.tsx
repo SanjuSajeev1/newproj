@@ -10,14 +10,18 @@ type Props = {
   title?: string;
   data: HomeDiscoveryProvider[];
   onPressProvider: (providerId: string) => void;
+  /** Set to `null` to hide the overlay badge (e.g. for “Near me”). */
+  badgeText?: string | null;
 };
 
 function TrendingCard({
   item,
   onPress,
+  badgeText,
 }: {
   item: HomeDiscoveryProvider;
   onPress: () => void;
+  badgeText: string | null;
 }) {
   const { animatedStyle, onPressIn, onPressOut } = useGlassPressScale(0.96);
 
@@ -27,7 +31,7 @@ function TrendingCard({
       onPressIn={onPressIn}
       onPressOut={onPressOut}
       accessibilityRole="button"
-      accessibilityLabel={`${item.name}, trending near ${item.location}`}
+      accessibilityLabel={`${item.name}, ${item.location}`}
       style={styles.cardPress}
     >
       <Animated.View style={[styles.card, animatedStyle]}>
@@ -39,9 +43,11 @@ function TrendingCard({
             end={{ x: 0.5, y: 1 }}
             style={styles.overlay}
           />
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>Trending</Text>
-          </View>
+          {badgeText ? (
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>{badgeText}</Text>
+            </View>
+          ) : null}
           <View style={styles.content}>
             <Text style={styles.name} numberOfLines={1}>
               {item.name}
@@ -60,7 +66,9 @@ export const TrendingSection = memo(function TrendingSection({
   title = 'Trending Near You',
   data,
   onPressProvider,
+  badgeText,
 }: Props) {
+  const resolvedBadge = badgeText === undefined ? 'Trending' : badgeText;
   return (
     <View style={styles.section}>
       <Text style={styles.title}>{title}</Text>
@@ -72,7 +80,12 @@ export const TrendingSection = memo(function TrendingSection({
         contentContainerStyle={styles.row}
       >
         {data.map((p) => (
-          <TrendingCard key={p.id} item={p} onPress={() => onPressProvider(p.id)} />
+          <TrendingCard
+            key={p.id}
+            item={p}
+            badgeText={resolvedBadge}
+            onPress={() => onPressProvider(p.id)}
+          />
         ))}
       </ScrollView>
     </View>

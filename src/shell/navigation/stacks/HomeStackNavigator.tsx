@@ -6,6 +6,9 @@ import { BeautyStylingScreen } from '../../../features/beautyStyling/screens/Bea
 import { ArtsCreativeScreen } from '../../../features/artsCreative/screens/ArtsCreativeScreen';
 import { DigitalServicesScreen } from '../../../features/digitalServices/screens/DigitalServicesScreen';
 import { SubCategoryFullScreen } from '../../../features/services/screens/SubCategoryFullScreen';
+import { DiscoveryCategoryDetailScreen } from '../../../features/home/screens/DiscoveryCategoryDetailScreen';
+import { SearchStackNavigator } from './SearchStackNavigator';
+import { ProfileRoleStackNavigator } from './ProfileRoleStackNavigator';
 import { HomeStackParamList } from '../types';
 
 const Stack = createNativeStackNavigator<HomeStackParamList>();
@@ -63,6 +66,25 @@ export function HomeStackNavigator() {
           headerShadowVisible: false,
           headerStyle: { backgroundColor: '#FFFFFF' },
         }}
+      />
+      <Stack.Screen
+        name="DiscoveryCategoryDetail"
+        component={DiscoveryCategoryDetailScreen}
+        options={{
+          title: '',
+          headerShadowVisible: false,
+          headerStyle: { backgroundColor: '#FFFFFF' },
+        }}
+      />
+      <Stack.Screen
+        name="Search"
+        component={SearchStackNavigator}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Profile"
+        component={ProfileRoleStackNavigator}
+        options={{ headerShown: false }}
       />
       <Stack.Screen
         name="StoryViewer"

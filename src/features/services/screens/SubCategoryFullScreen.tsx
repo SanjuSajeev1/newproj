@@ -84,16 +84,13 @@ export function SubCategoryFullScreen() {
 
   const openProviderListing = useCallback(
     (serviceName: string) => {
-      const tab = navigation.getParent();
-      if (!tab) return;
       const chip = sub.providerListingChip;
-      tab.navigate(
-        'SearchTab' as never,
-        {
-          screen: 'ProviderListing',
-          params: chip ? ({ serviceName, initialChip: chip, initialQuery: '' } satisfies SearchStackParamList['ProviderListing']) : ({ serviceName, initialQuery: '' } satisfies SearchStackParamList['ProviderListing']),
-        } as never,
-      );
+      navigation.navigate('Search', {
+        screen: 'ProviderListing',
+        params: chip
+          ? ({ serviceName, initialChip: chip, initialQuery: '' } satisfies SearchStackParamList['ProviderListing'])
+          : ({ serviceName, initialQuery: '' } satisfies SearchStackParamList['ProviderListing']),
+      });
     },
     [navigation, sub.providerListingChip],
   );
@@ -133,12 +130,10 @@ export function SubCategoryFullScreen() {
                     item={p}
                     index={i}
                     onPress={() => {
-                      const tab = navigation.getParent();
-                      if (!tab) return;
-                      tab.navigate(
-                        'SearchTab' as never,
-                        { screen: 'ProviderProfile', params: { providerId: p.id } } as never,
-                      );
+                      navigation.navigate('Search', {
+                        screen: 'ProviderProfile',
+                        params: { providerId: p.id },
+                      });
                     }}
                   />
                 ))}

@@ -19,7 +19,12 @@ type Props = {
 
 const timing = { duration: 260 };
 
-function DynamicHeaderBackgroundImpl({ uri, scrollY, expandedHeight, collapsedHeight }: Props) {
+function DynamicHeaderBackgroundImpl({
+  uri,
+  scrollY,
+  expandedHeight,
+  collapsedHeight,
+}: Props) {
   const [prevUri, setPrevUri] = useState(uri);
   const [currUri, setCurrUri] = useState(uri);
   const t = useSharedValue(1);
@@ -33,11 +38,24 @@ function DynamicHeaderBackgroundImpl({ uri, scrollY, expandedHeight, collapsedHe
     t.value = withTiming(1, timing);
   }, [currUri, t, uri]);
 
-  const range = useMemo(() => Math.max(1, expandedHeight - collapsedHeight), [collapsedHeight, expandedHeight]);
+  const range = useMemo(
+    () => Math.max(1, expandedHeight - collapsedHeight),
+    [collapsedHeight, expandedHeight],
+  );
 
   const parallaxStyle = useAnimatedStyle(() => {
-    const translateY = interpolate(scrollY.value, [0, range], [0, -18], Extrapolation.CLAMP);
-    const scale = interpolate(scrollY.value, [0, range], [1, 1.08], Extrapolation.CLAMP);
+    const translateY = interpolate(
+      scrollY.value,
+      [0, range],
+      [0, -18],
+      Extrapolation.CLAMP,
+    );
+    const scale = interpolate(
+      scrollY.value,
+      [0, range],
+      [1, 1.08],
+      Extrapolation.CLAMP,
+    );
     return { transform: [{ translateY }, { scale }] };
   }, [range, scrollY]);
 
@@ -46,10 +64,14 @@ function DynamicHeaderBackgroundImpl({ uri, scrollY, expandedHeight, collapsedHe
 
   return (
     <View style={styles.wrap}>
-      <Animated.View style={[StyleSheet.absoluteFillObject, parallaxStyle, prevStyle]}>
+      <Animated.View
+        style={[StyleSheet.absoluteFillObject, parallaxStyle, prevStyle]}
+      >
         <Image source={{ uri: prevUri }} style={styles.img} />
       </Animated.View>
-      <Animated.View style={[StyleSheet.absoluteFillObject, parallaxStyle, currStyle]}>
+      <Animated.View
+        style={[StyleSheet.absoluteFillObject, parallaxStyle, currStyle]}
+      >
         <Image source={{ uri: currUri }} style={styles.img} />
       </Animated.View>
 
@@ -75,4 +97,3 @@ const styles = StyleSheet.create({
     resizeMode: "cover",
   },
 });
-

@@ -1,4 +1,4 @@
-import { memo, useCallback, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useMemo, useRef, useState } from "react";
 import {
   LayoutChangeEvent,
   Pressable,
@@ -8,11 +8,19 @@ import {
   View,
   type TextStyle,
   type ViewStyle,
-} from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { colors, spacing } from '../../../constants/theme';
+} from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
+import { colors, spacing } from "../../../constants/theme";
 
-export type InlineServiceTabId = 'events' | 'arts-creative' | 'digital-services' | 'beauty-styling';
+export type InlineServiceTabId =
+  | "events"
+  | "arts-creative"
+  | "digital-services"
+  | "beauty-styling";
 
 type TabItem = { id: InlineServiceTabId; label: string };
 
@@ -31,10 +39,10 @@ type Props = {
 type TabLayout = { x: number; width: number };
 
 const TABS: TabItem[] = [
-  { id: 'events', label: 'Events' },
-  { id: 'arts-creative', label: 'Arts & Creative' },
-  { id: 'digital-services', label: 'Digital Services' },
-  { id: 'beauty-styling', label: 'Beauty & Styling' },
+  { id: "events", label: "Events" },
+  { id: "arts-creative", label: "Arts & Creative" },
+  { id: "digital-services", label: "Digital Services" },
+  { id: "beauty-styling", label: "Beauty & Styling" },
 ];
 
 const timing = { duration: 200 };
@@ -51,23 +59,29 @@ function InlineServiceTabsImpl({
 }: Props) {
   const layoutsRef = useRef<Record<InlineServiceTabId, TabLayout | undefined>>({
     events: undefined,
-    'arts-creative': undefined,
-    'digital-services': undefined,
-    'beauty-styling': undefined,
+    "arts-creative": undefined,
+    "digital-services": undefined,
+    "beauty-styling": undefined,
   });
   const [readyCount, setReadyCount] = useState(0);
 
   const underlineX = useSharedValue(0);
   const underlineW = useSharedValue(0);
 
-  const activeIndex = useMemo(() => TABS.findIndex((t) => t.id === value), [value]);
+  const activeIndex = useMemo(
+    () => TABS.findIndex((t) => t.id === value),
+    [value],
+  );
 
-  const moveUnderline = useCallback((id: InlineServiceTabId) => {
-    const l = layoutsRef.current[id];
-    if (!l) return;
-    underlineX.value = withTiming(l.x, timing);
-    underlineW.value = withTiming(l.width, timing);
-  }, [underlineW, underlineX]);
+  const moveUnderline = useCallback(
+    (id: InlineServiceTabId) => {
+      const l = layoutsRef.current[id];
+      if (!l) return;
+      underlineX.value = withTiming(l.x, timing);
+      underlineW.value = withTiming(l.width, timing);
+    },
+    [underlineW, underlineX],
+  );
 
   const onTabLayout = useCallback(
     (id: InlineServiceTabId) => (e: LayoutChangeEvent) => {
@@ -90,7 +104,13 @@ function InlineServiceTabsImpl({
   }));
 
   return (
-    <View style={[styles.wrap, variant === "onDark" ? styles.wrapOnDark : null, style]}>
+    <View
+      style={[
+        styles.wrap,
+        variant === "onDark" ? styles.wrapOnDark : null,
+        style,
+      ]}
+    >
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -106,7 +126,11 @@ function InlineServiceTabsImpl({
         >
           <Animated.View
             pointerEvents="none"
-            style={[styles.underline, variant === "onDark" ? styles.underlineOnDark : null, underlineStyle]}
+            style={[
+              styles.underline,
+              variant === "onDark" ? styles.underlineOnDark : null,
+              underlineStyle,
+            ]}
           />
           {TABS.map((t, idx) => {
             const active = idx === activeIndex;
@@ -146,7 +170,12 @@ function InlineServiceTabsImpl({
         </View>
       </ScrollView>
       {showDivider ? (
-        <View style={[styles.bottomHairline, variant === "onDark" ? styles.bottomHairlineOnDark : null]} />
+        <View
+          style={[
+            styles.bottomHairline,
+            variant === "onDark" ? styles.bottomHairlineOnDark : null,
+          ]}
+        />
       ) : null}
     </View>
   );
@@ -165,8 +194,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
   },
   row: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
+    flexDirection: "row",
+    alignItems: "flex-end",
     gap: spacing.lg,
     paddingBottom: 10,
     paddingTop: 6,
@@ -196,7 +225,7 @@ const styles = StyleSheet.create({
   },
   textActive: {
     color: colors.textPrimary,
-    fontWeight: '800',
+    fontWeight: "800",
   },
   textActiveOnDark: {
     color: "rgba(255,255,255,0.98)",
@@ -204,14 +233,14 @@ const styles = StyleSheet.create({
   },
   textInactive: {
     color: colors.textTertiary,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   textInactiveOnDark: {
     color: "rgba(255,255,255,0.72)",
     fontWeight: "700",
   },
   underline: {
-    position: 'absolute',
+    position: "absolute",
     left: 0,
     bottom: 2,
     height: 2.5,
@@ -223,7 +252,7 @@ const styles = StyleSheet.create({
   },
   bottomHairline: {
     height: 1,
-    backgroundColor: 'rgba(15, 23, 42, 0.06)',
+    backgroundColor: "rgba(15, 23, 42, 0.06)",
   },
   bottomHairlineOnDark: {
     backgroundColor: "rgba(255,255,255,0.10)",

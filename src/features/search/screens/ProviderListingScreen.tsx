@@ -64,12 +64,6 @@ export function ProviderListingScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.listContent}
         ItemSeparatorComponent={() => <View style={styles.gap} />}
-        ListHeaderComponent={
-          <View style={styles.header}>
-            <Text style={styles.headerTitle}>{serviceName}</Text>
-            <Text style={styles.count}>{list.length} providers</Text>
-          </View>
-        }
         ListEmptyComponent={
           <View style={styles.empty}>
             <Text style={styles.emptyTitle}>No providers found</Text>
@@ -86,26 +80,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  header: {
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: spacing.md,
-    paddingTop: spacing.md,
-    paddingBottom: spacing.md,
-  },
-  headerTitle: {
-    ...typography.title,
-    fontSize: 20,
-    marginBottom: 6,
-  },
-  count: {
-    ...typography.caption,
-    color: colors.textSecondary,
-    fontWeight: '700',
-  },
   listContent: {
     paddingHorizontal: spacing.md,
     paddingBottom: spacing.xl + spacing.lg,
-    paddingTop: spacing.sm,
+    paddingTop: spacing.md,
   },
   gap: {
     height: spacing.md,

@@ -2,7 +2,7 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StatusBar } from "expo-status-bar";
 import { useCallback, useMemo, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, {
   useAnimatedScrollHandler,
@@ -10,23 +10,23 @@ import Animated, {
 } from "react-native-reanimated";
 import { useAuthStore } from "../../../store/authStore";
 import { HomeStackParamList } from "../../../shell/navigation/types";
-import { MOCK_POSTS } from "../../../constants/mockData";
 import { LocationBottomSheet } from "../components/glass";
-import { FeedPostCard } from "../components/FeedPostCard";
 import { StickyHomeHeader } from "../components/StickyHomeHeader";
-import {
-  InlineServiceTabs,
-  type InlineServiceTabId,
-} from "../components/InlineServiceTabs";
+import type { InlineServiceTabId } from "../components/InlineServiceTabs";
+import { radius, shadows } from "../../../constants/theme";
 import { gs } from "../constants/glassTheme";
 import { ServiceDiscoveryLayout } from "../components/ServiceDiscoveryLayout";
+import { TopRatedSection } from "../components/TopRatedSection";
+import { TrendingSection } from "../components/TrendingSection";
 import {
   HOME_HERO_SLIDES,
-  HOME_RECENTLY_ADDED,
   HOME_SERVICE_CATEGORIES,
-  HOME_TOP_RATED_PROFESSIONALS,
-  HOME_TRENDING_NEAR_YOU,
 } from "../data/homeDashboardMock";
+import {
+  getAllArtistsRailForHome,
+  getNearMeArtistsForHome,
+  getTopRatedArtistsForHome,
+} from "../data/homeProviderRails";
 
 type Nav = NativeStackNavigationProp<HomeStackParamList, "HomeMain">;
 
@@ -34,7 +34,6 @@ export function HomeScreen() {
   const navigation = useNavigation<Nav>();
   const insets = useSafeAreaInsets();
   const user = useAuthStore((s) => s.user);
-  const isGuest = useAuthStore((s) => s.isGuest);
   const [location, setLocation] = useState("Bangalore");
   const [showLocationSheet, setShowLocationSheet] = useState(false);
   const [tab, setTab] = useState<InlineServiceTabId>("events");
@@ -60,77 +59,13 @@ export function HomeScreen() {
     return match?.imageUrl ? { uri: match.imageUrl } : undefined;
   }, [tab]);
 
-  const filterProviders = useCallback(
-    (items: typeof HOME_TOP_RATED_PROFESSIONALS) => {
-      const cat = (p: (typeof items)[number]) => p.category.toLowerCase();
-      const out =
-        tab === "events"
-          ? items.filter((p) => cat(p).includes("events"))
-          : tab === "arts-creative"
-            ? items.filter(
-                (p) =>
-                  cat(p).includes("arts") ||
-                  cat(p).includes("creative") ||
-                  cat(p).includes("artist"),
-              )
-            : tab === "digital-services"
-              ? items.filter(
-                  (p) =>
-                    cat(p).includes("digital") ||
-                    cat(p).includes("web") ||
-                    cat(p).includes("app"),
-                )
-              : items.filter(
-                  (p) =>
-                    cat(p).includes("beauty") ||
-                    cat(p).includes("styling") ||
-                    cat(p).includes("makeup"),
-                );
-
-      return out.length > 0 ? out : items.slice(0, 3);
-    },
-    [tab],
-  );
-
-  const openEvents = useCallback(() => {
-    navigation.navigate("Events");
-  }, [navigation]);
-
-  const openArtsCreative = useCallback(() => {
-    navigation.navigate("ArtsCreative");
-  }, [navigation]);
-
-  const openDigitalServices = useCallback(() => {
-    navigation.navigate("DigitalServices");
-  }, [navigation]);
-
-  const openBeautyStyling = useCallback(() => {
-    navigation.navigate("BeautyStyling");
-  }, [navigation]);
-
   const tryOpenSearchTab = useCallback(() => {
-    const tab = navigation.getParent();
-    if (!tab) return;
-    const state = tab.getState();
-    if (state?.routeNames?.includes("SearchTab")) {
-      tab.navigate("SearchTab" as never);
-    }
+    navigation.navigate("Search", { screen: "SearchMain" });
   }, [navigation]);
 
-  const openProviderProfile = useCallback(
-    (providerId: string) => {
-      const tab = navigation.getParent();
-      if (!tab) return;
-      tab.navigate(
-        "SearchTab" as never,
-        {
-          screen: "ProviderProfile",
-          params: { providerId },
-        } as never,
-      );
-    },
-    [navigation],
-  );
+  const openProfile = useCallback(() => {
+    navigation.navigate("Profile", { screen: "ProfileMain" });
+  }, [navigation]);
 
   const onSearchSubmit = useCallback(
     (_text: string) => {
@@ -150,6 +85,23 @@ export function HomeScreen() {
     [setTab],
   );
 
+  const topRatedArtists = useMemo(() => getTopRatedArtistsForHome(), []);
+  const nearMeArtists = useMemo(
+    () => getNearMeArtistsForHome(location),
+    [location],
+  );
+  const allArtistsRail = useMemo(() => getAllArtistsRailForHome(), []);
+
+  const openProvider = useCallback(
+    (providerId: string) => {
+      navigation.navigate("Search", {
+        screen: "ProviderProfile",
+        params: { providerId },
+      });
+    },
+    [navigation],
+  );
+
   return (
     <View style={styles.bg}>
       <StatusBar style="dark" />
@@ -164,6 +116,7 @@ export function HomeScreen() {
         tab={tab}
         onTabChange={onTabChange}
         onLocationPress={() => setShowLocationSheet(true)}
+        onProfilePress={openProfile}
         onSearchSubmit={onSearchSubmit}
         expandedHeight={HEADER_EXPANDED}
         collapsedHeight={HEADER_COLLAPSED}
@@ -176,34 +129,30 @@ export function HomeScreen() {
         contentContainerStyle={[
           styles.scrollContent,
           {
-            paddingTop: HEADER_EXPANDED + insets.top + gs.md,
+            paddingTop: HEADER_EXPANDED + insets.top,
             paddingBottom: insets.bottom + gs.xl + 8,
           },
         ]}
       >
-        <View style={styles.sectionBlock}>
-          <ServiceDiscoveryLayout
-            tab={tab}
-            providersTopRated={HOME_TOP_RATED_PROFESSIONALS}
-            providersTrending={HOME_TRENDING_NEAR_YOU}
-            providersRecent={HOME_RECENTLY_ADDED}
-            onPressProvider={openProviderProfile}
-          />
-        </View>
-
-        {/* provider rails rendered inside ServiceDiscoveryLayout */}
-
-        <View style={styles.feedSection}>
-          <Text style={styles.feedTitle}>Feed</Text>
-          <View style={styles.feedList}>
-            {MOCK_POSTS.slice(0, 2).map((post) => (
-              <FeedPostCard
-                key={post.id}
-                post={post}
-                isGuest={isGuest}
-                onInteractionBlocked={() => {}}
-              />
-            ))}
+        <View style={styles.discoverySheet}>
+          <ServiceDiscoveryLayout tab={tab} />
+          <View style={styles.providerRails}>
+            <TopRatedSection
+              title="Top rated artists"
+              data={topRatedArtists}
+              onPressProvider={openProvider}
+            />
+            <TrendingSection
+              title="Near me"
+              badgeText={null}
+              data={nearMeArtists}
+              onPressProvider={openProvider}
+            />
+            <TopRatedSection
+              title="All"
+              data={allArtistsRail}
+              onPressProvider={openProvider}
+            />
           </View>
         </View>
       </Animated.ScrollView>
@@ -222,29 +171,34 @@ export function HomeScreen() {
   );
 }
 
+const SHEET = "#FAFAFB";
+
 const styles = StyleSheet.create({
   bg: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F6F7F9",
   },
   scrollContent: {
     paddingHorizontal: gs.md,
     flexGrow: 1,
   },
-  sectionBlock: {
-    marginTop: gs.xl,
+  discoverySheet: {
+    marginTop: 0,
+    marginHorizontal: -gs.md,
+    backgroundColor: SHEET,
+    borderTopLeftRadius: radius.sheet,
+    borderTopRightRadius: radius.sheet,
+    overflow: "hidden",
+    paddingTop: gs.xxs,
+    paddingHorizontal: gs.xxs,
+    paddingBottom: gs.md,
+    ...shadows.card,
+    shadowOpacity: 0.06,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: "rgba(15,23,42,0.06)",
   },
-  feedSection: {
-    marginTop: gs.xl,
-  },
-  feedTitle: {
-    fontSize: 18,
-    fontWeight: "800",
-    color: "#0F172A",
-    letterSpacing: -0.2,
-    marginBottom: gs.sm,
-  },
-  feedList: {
-    gap: gs.md,
+  providerRails: {
+    paddingHorizontal: 0,
+    paddingBottom: gs.sm,
   },
 });
